@@ -2,18 +2,25 @@
   "name": "ics-bot",
   "version": "1.0.0",
   "description": "Discord bot to facilitate synchronized countdowns.",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js"
+    "build": "babel src -d build",
+    "start": "node build/index.js",
+    "dev": "npm run build && nodemon build/index.js",
+    "heroku-prebuild": "npm run build"
   },
   "author": "MadCow234",
   "license": "MIT",
   "dependencies": {
+    "cross-spawn": "^7.0.1",
     "discord.js": "^11.5.1",
     "dotenv": "^8.2.0"
   },
   "devDependencies": {
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.8.4",
+    "@babel/preset-env": "^7.8.4",
+    "heroku": "^7.37.0",
     "nodemon": "^2.0.2"
   }
 }
