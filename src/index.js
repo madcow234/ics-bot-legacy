@@ -8,7 +8,7 @@ client.on('ready', () => {
 
 client.on('message', msg => {
     if (msg.content.startsWith("!ics")) {
-        msg.reply('Smangle time, bitches!');
+        msg.reply('Smangle time!');
     }
 });
 

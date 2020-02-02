@@ -7,7 +7,7 @@
     "build": "babel src -d build",
     "start": "node build/index.js",
     "dev": "npm run build && nodemon build/index.js",
-    "heroku-prebuild": "npm install && npm run build"
+    "heroku-prebuild": "npm run build"
   },
   "author": "MadCow234",
   "license": "MIT",
