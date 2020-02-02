@@ -7,20 +7,19 @@
     "build": "babel src -d build",
     "start": "node build/index.js",
     "dev": "npm run build && nodemon build/index.js",
-    "heroku-prebuild": "npm run build"
+    "heroku-prebuild": "npm install && npm run build"
   },
   "author": "MadCow234",
   "license": "MIT",
   "dependencies": {
-    "cross-spawn": "^7.0.1",
-    "discord.js": "^11.5.1",
-    "dotenv": "^8.2.0"
+    "discord.js": "^11.5.1"
   },
   "devDependencies": {
     "@babel/cli": "^7.8.4",
     "@babel/core": "^7.8.4",
     "@babel/preset-env": "^7.8.4",
-    "heroku": "^7.37.0",
+    "cross-spawn": "^7.0.1",
+    "dotenv": "^8.2.0",
     "nodemon": "^2.0.2"
   }
 }
