@@ -1,0 +1,19 @@
+{
+  "name": "ics-bot",
+  "version": "1.0.0",
+  "description": "Discord bot to facilitate synchronized countdowns.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "author": "MadCow234",
+  "license": "MIT",
+  "dependencies": {
+    "discord.js": "^11.5.1",
+    "dotenv": "^8.2.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.2"
+  }
+}
