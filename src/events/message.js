@@ -8,7 +8,8 @@ exports.run = async(client, message) => {
         if (message.author.bot && message.author.id !== client.user.id) return;
 
         // Get the command prefix from config and append a suffix if we're not in production
-        let commandPrefix = process.env.NODE_ENV === 'production' ? config.prefix + ' ' : config.prefix + '-test';
+        let commandPrefix = config.prefix;
+        if (process.env.NODE_ENV !== 'production') commandPrefix = 'test-' + commandPrefix;
 
         // Execute the commandsMonitor if the configured prefix is heard
         if (message.content.startsWith(commandPrefix)) {
