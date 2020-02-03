@@ -1,0 +1,16 @@
+{
+  "ALERT": {
+    "ICS": "**:bell: :regional_indicator_i: :regional_indicator_c: :regional_indicator_s: :bell:**",
+    "HERE_WE_GO": "**Here we go!** ",
+    "COUNTDOWN_IN_PROGRESS": "**Countdown already in progress!  Multiple countdowns are currently not supported.**",
+    "READY_UP": "**Click OK to ready up:** "
+  },
+  "COUNTDOWN": {
+    "TMINUS": "**             T-Minus            **",
+    "THREE": "**                  :three:                 **",
+    "TWO": "**                  :two:                 **",
+    "ONE": "**                  :one:                 **",
+    "IGNITION": "**:fire:       Ignition      :fire:**",
+    "BLASTOFF": "**:rocket:     Blast off!!!    :rocket:**"
+  }
+}

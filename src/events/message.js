@@ -2,19 +2,18 @@ import log from 'winston';
 
 exports.run = async(client, message) => {
     try {
-        const config = require('../../config.json');
-
         // Don't respond to bots...unless I'm the one talking
         if (message.author.bot && message.author.id !== client.user.id) return;
 
-        // Get the command prefix from config and append a suffix if we're not in production
-        let commandPrefix = config.prefix;
-        if (process.env.NODE_ENV !== 'production') commandPrefix = 'test-' + commandPrefix;
-
         // Execute the commandsMonitor if the configured prefix is heard
-        if (message.content.startsWith(commandPrefix)) {
-            // require('../monitors/commandsMonitor.js').run(client, message);
-            await message.reply('Smangle time!');
+        if (message.content.startsWith(process.env.PREFIX)) {
+            let args = message.content.trim().split(/ +/g);
+
+            // Ensure that the first argument is exactly the prefix and not just startsWith
+            // We do this because it is cheaper to check startsWith on every message
+            if (args[0] !== process.env.PREFIX) return;
+
+            require('../monitors/command-monitor.js').run(client, message, args.slice(1));
         }
 
     } catch (err) {
