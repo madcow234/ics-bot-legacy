@@ -16,7 +16,7 @@ exports.run = async(client, message, args) => {
             .setTitle(`Countdown Initiated`)
             .setTimestamp()
             .setDescription(messageConstants.ALERT.ICS)
-            .setAuthor(client.user.username, 'https://cdn.discordapp.com/attachments/160821484770557953/673758923446157322/icsbotanimated.gif');
+            .setAuthor(client.user.username, 'https://cdn.discordapp.com/attachments/160594618478493696/673758112225820672/icsbot1.png');
 
         let countdownEmbedMessage = await message.channel.send(countdownEmbed).catch(err => console.log(err));
 
@@ -28,7 +28,7 @@ exports.run = async(client, message, args) => {
                 .setTitle(`Countdown Initiated`)
                 .setTimestamp()
                 .setDescription(description)
-                .setAuthor(client.user.username, 'https://cdn.discordapp.com/attachments/160821484770557953/673758923446157322/icsbotanimated.gif');
+                .setAuthor(client.user.username, 'https://cdn.discordapp.com/attachments/160594618478493696/673758112225820672/icsbot1.png');
 
             await delay(1100);
             countdownEmbedMessage = await countdownEmbedMessage.edit(countdownEmbed).catch(err => console.log(err));
@@ -38,7 +38,8 @@ exports.run = async(client, message, args) => {
             .setTitle(`ICS History Report`)
             .setTimestamp()
             .setDescription(historyDescription)
-            .setAuthor(client.user.username, 'https://cdn.discordapp.com/attachments/160821484770557953/673758923446157322/icsbotanimated.gif');
+            .setThumbnail('https://cdn.discordapp.com/attachments/160821484770557953/673758923446157322/icsbotanimated.gif')
+            .setAuthor(client.user.username, 'https://cdn.discordapp.com/attachments/160594618478493696/673758112225820672/icsbot1.png');
 
         await delay(5100);
         messagesToDelete.push(countdownEmbedMessage);
