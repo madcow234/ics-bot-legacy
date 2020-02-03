@@ -21,3 +21,6 @@
 
 # dotenv environment variables file
 .env
+
+# Log directory
+/logs/
