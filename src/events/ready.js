@@ -5,7 +5,7 @@ export async function run(client) {
     try {
         log.info(`${client.user.username} has come online. Ready to serve in ${client.channels.size} channels on ${client.guilds.size} servers, for a total of ${client.users.size} users.`);
 
-        await client.user.setActivity('!ics commands', {type: "LISTENING"});
+        await client.user.setActivity(`${process.env.PREFIX} commands`, {type: "LISTENING"});
 
         // Actions to skip if testing the bot (like sending a message to general chat upon login)
         if (process.env.NODE_ENV !== 'production') return;

@@ -18,7 +18,7 @@ exports.run = async(client, message, args) => {
             .setDescription(messageConstants.ALERT.ICS)
             .setAuthor(client.user.username, 'https://cdn.discordapp.com/attachments/160594618478493696/673758112225820672/icsbot1.png');
 
-        let countdownEmbedMessage = await message.channel.send(countdownEmbed).catch(err => console.log(err));
+        let countdownEmbedMessage = await message.channel.send(countdownEmbed).catch(err => log.error(err));
 
         let countdown = messageConstants.COUNTDOWN;
         let description = messageConstants.ALERT.ICS;
@@ -31,7 +31,7 @@ exports.run = async(client, message, args) => {
                 .setAuthor(client.user.username, 'https://cdn.discordapp.com/attachments/160594618478493696/673758112225820672/icsbot1.png');
 
             await delay(1100);
-            countdownEmbedMessage = await countdownEmbedMessage.edit(countdownEmbed).catch(err => console.log(err));
+            countdownEmbedMessage = await countdownEmbedMessage.edit(countdownEmbed).catch(err => log.error(err));
         }
 
         let historyEmbed = new RichEmbed()
@@ -43,8 +43,8 @@ exports.run = async(client, message, args) => {
 
         await delay(5100);
         messagesToDelete.push(countdownEmbedMessage);
-        messagesToDelete.length < 2 ? messagesToDelete[0].delete() : message.channel.bulkDelete(messagesToDelete).catch(err => console.log(err));
-        message.channel.send(historyEmbed).catch(err => console.log(err));
+        messagesToDelete.length < 2 ? messagesToDelete[0].delete() : message.channel.bulkDelete(messagesToDelete).catch(err => log.error(err));
+        message.channel.send(historyEmbed).catch(err => log.error(err));
 
 
     } catch (err) {
