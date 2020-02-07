@@ -9,7 +9,7 @@
     "dev-clean": "del-cli build && del-cli logs",
     "dev-build": "del-cli build && npm run build",
     "dev-start": "del-cli build && npm run build && nodemon build/ics-bot.js",
-    "heroku-prebuild": "npm install && npm run build"
+    "heroku-prebuild": "del-cli build && npm run build"
   },
   "author": "MadCow234",
   "license": "MIT",
