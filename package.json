@@ -7,8 +7,7 @@
   "main": "src/ics-bot.js",
   "scripts": {
     "heroku-prebuild": "del-cli build",
-    "build": "babel src -d build",
-    "heroku-postbuild": "del-cli src",
+    "build": "babel src -d build && del-cli src",
     "start": "node build/ics-bot.js",
     "dev-clean": "del-cli build && del-cli logs",
     "dev-build": "del-cli build && npm run build",
