@@ -1,6 +1,6 @@
 import { newErrorEmbed } from '../templates/embed.js'
-import log from 'winston';
 import { getCommands } from '../commands'
+import log from 'winston';
 
 exports.run = async(client, message, args) => {
     try {

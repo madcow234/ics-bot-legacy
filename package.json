@@ -4,7 +4,7 @@
   "description": "Discord bot to facilitate synchronized countdowns.",
   "author": "MadCow234",
   "license": "MIT",
-  "main": "src/ics-bot.js",
+  "main": "build/ics-bot.js",
   "scripts": {
     "build": "del-cli build && babel src -d build && del-cli src",
     "start": "node build/ics-bot.js",

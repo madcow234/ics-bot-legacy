@@ -1,5 +1,5 @@
-import log from 'winston';
 import { RichEmbed } from 'discord.js';
+import log from 'winston';
 
 exports.run = async(client, message, args) => {
     try {

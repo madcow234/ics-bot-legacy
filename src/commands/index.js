@@ -8,7 +8,7 @@ export async function getCommands() {
         // Read the files in this directory
         let commandFiles = readdirSync(__dirname);
 
-        // Log a warning if the index.js file is the only one in the directory
+        // Log a warning if the directory is empty or the index.js file is the only one in the directory
         if (commandFiles.length === 0 || (commandFiles.length === 1 && commandFiles[0] === 'index.js')) {
             log.warn(`Could not retrieve commands. Reason: 'No commands have been defined in the /commands/ directory.'`);
             return commandsArray;

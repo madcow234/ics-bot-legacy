@@ -4,7 +4,7 @@ import Discord        from 'discord.js';
 
 export async function initApplication() {
     try {
-        // Load a local .env file if in development or test
+        // Load a local .env file if in not in production
         if (process.env.NODE_ENV !== 'production') {
             require('dotenv').config();
         }
@@ -21,7 +21,7 @@ export async function initApplication() {
         // Get the bot's access token
         const BOT_TOKEN = process.env.BOT_TOKEN;
 
-        // Tell the bot to log in
+        // Tell the bot to wake up
         await client.login(BOT_TOKEN)
 
     } catch (error) {
