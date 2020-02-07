@@ -11,7 +11,7 @@
     "dev-clean": "del-cli build && del-cli logs",
     "dev-build": "del-cli build && npm run build",
     "dev-start": "del-cli build && npm run build && nodemon build/ics-bot.js",
-    "heroku-prebuild": "npm install && del-cli build && npm run build"
+    "heroku-prebuild": "del-cli build"
   },
   "dependencies": {
     "del-cli": "^3.0.0",
