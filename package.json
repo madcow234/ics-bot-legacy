@@ -6,12 +6,11 @@
   "license": "MIT",
   "main": "src/ics-bot.js",
   "scripts": {
-    "heroku-prebuild": "del-cli build",
-    "build": "babel src -d build && del-cli src",
+    "build": "del-cli build && babel src -d build && del-cli src",
     "start": "node build/ics-bot.js",
     "dev-clean": "del-cli build && del-cli logs",
-    "dev-build": "del-cli build && npm run build",
-    "dev-start": "del-cli build && npm run build && nodemon build/ics-bot.js"
+    "dev-build": "del-cli build && babel src -d build",
+    "dev-start": "del-cli build && npm run dev-build && nodemon build/ics-bot.js"
   },
   "dependencies": {
     "del-cli": "^3.0.0",

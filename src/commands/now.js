@@ -3,7 +3,7 @@ import { RichEmbed } from 'discord.js';
 
 exports.run = async(client, message, args) => {
     try {
-        const messageConstants = require("../../message-constants.json");
+        const messageConstants = require("../../resources/message-constants.json");
 
         const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
