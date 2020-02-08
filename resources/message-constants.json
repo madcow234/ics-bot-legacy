@@ -1,16 +1,26 @@
 {
   "ALERT": {
-    "ICS": "**:bell: :regional_indicator_i: :regional_indicator_c: :regional_indicator_s: :bell:**",
-    "HERE_WE_GO": "**Here we go!** ",
     "COUNTDOWN_IN_PROGRESS": "**Countdown already in progress!  Multiple countdowns are currently not supported.**",
-    "READY_UP": "**Click OK to ready up:** "
+    "READY_UP": "**Click OK to ready up:** ",
+    "HERE_WE_GO": "**Here we go!** "
   },
   "COUNTDOWN": {
-    "TMINUS": "**             T-Minus            **",
-    "THREE": "**                  :three:                 **",
-    "TWO": "**                  :two:                 **",
-    "ONE": "**                  :one:                 **",
-    "IGNITION": "**:fire:       Ignition      :fire:**",
-    "BLASTOFF": "**:rocket:     Blast off!!!    :rocket:**"
+    "THREE": "**\uD83D\uDD14 \uD83D\uDD14 \uD83C\uDDEE \uD83C\uDDE8 \uD83C\uDDF8 \uD83D\uDD14 \uD83D\uDD14**",
+    "FOUR":   "**▪️▪️..T-Minus..▪️▪️**",
+    "FIVE":    "**▪️ \uD83D\uDD59 ▪️ 3️⃣▪️ \uD83D\uDD59 ▪️**",
+    "SIX":      "**▪️ \uD83D\uDD5A ▪️ 2️⃣▪️ \uD83D\uDD5A ▪️**",
+    "SEVEN":      "**▪️ \uD83D\uDD5B ▪️ 1️⃣▪️ \uD83D\uDD5B ▪️**",
+    "EIGHT": "**\uD83D\uDD25 \uD83D\uDD25 Ignition... \uD83D\uDD25 \uD83D\uDD25**",
+    "NINE": "**\uD83D\uDE80 \uD83D\uDE80 Blast off!! \uD83D\uDE80 \uD83D\uDE80**"
+  },
+  "IMAGES": {
+    "ONE": "https://cdn.discordapp.com/attachments/673213456526082053/675580929258815522/alert.png",
+    "TWO": "https://cdn.discordapp.com/attachments/673213456526082053/675579430063833118/ics.png",
+    "THREE": "https://cdn.discordapp.com/attachments/673213456526082053/675578455030497280/tminus.png",
+    "FOUR": "https://cdn.discordapp.com/attachments/673213456526082053/675574073215942666/3.png",
+    "FIVE": "https://cdn.discordapp.com/attachments/673213456526082053/675574068300218368/2.png",
+    "SIX": "https://cdn.discordapp.com/attachments/673213456526082053/675574070099836947/1.png",
+    "SEVEN": "https://cdn.discordapp.com/attachments/673213456526082053/675578452426096640/ignition.png",
+    "EIGHT": "https://cdn.discordapp.com/attachments/673213456526082053/675578453658959886/blastoff.png"
   }
 }

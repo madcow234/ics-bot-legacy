@@ -16,6 +16,8 @@ exports.run = async(client, message) => {
         // This allows us to have both !ics and !ics-test prefixes on separate bots
         if (args[0] !== process.env.PREFIX) return;
 
+        message.delete();
+
         require('../monitors/command-monitor.js').run(client, message, args.slice(1));
 
     } catch (err) {
