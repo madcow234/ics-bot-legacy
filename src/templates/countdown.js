@@ -17,7 +17,7 @@ exports.executeCountdown = async(client, message, historyDescription) => {
 
     let countdownEmbedMessage = await message.channel.send(countdownEmbed).catch(err => log.error(err));
 
-    let description = ``;
+    let description = "";
     for (const step of stepNums) {
         if (step === "ONE") {
            await delay(1100);
@@ -46,7 +46,6 @@ exports.executeCountdown = async(client, message, historyDescription) => {
             await delay(1100);
             countdownEmbedMessage = await countdownEmbedMessage.edit(countdownEmbed).catch(err => log.error(err));
         }
-
     }
 
     let historyEmbed = new RichEmbed()
@@ -60,5 +59,4 @@ exports.executeCountdown = async(client, message, historyDescription) => {
     messagesToDelete.push(countdownEmbedMessage);
     messagesToDelete.length < 2 ? messagesToDelete[0].delete() : message.channel.bulkDelete(messagesToDelete).catch(err => log.error(err));
     message.channel.send(historyEmbed).catch(err => log.error(err));
-
 };
