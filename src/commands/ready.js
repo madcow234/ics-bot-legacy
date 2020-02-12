@@ -193,9 +193,10 @@ const setReadyCheckLobby = async (client, readyCheckLobby, readyUsers, unreadyUs
     let readyCheckLobbyEmbed = new RichEmbed()
         .setTitle(`Ready Check Lobby`)
         .setTimestamp()
-        .setDescription(messageConstants.COUNTDOWN.THREE)
+        .setImage('https://cdn.discordapp.com/attachments/160594618478493696/677024135326466048/ics.gif')
         .addField("**Ready:**", `${readyUsers.length > 0 ? readyUsers.join(", ") : "Waiting..."}`)
         .addField("**Waiting For:**", `${unreadyUsers.length > 0 ? unreadyUsers.join(", "): "Everyone is ready!"}`)
+
         .setAuthor(client.user.username, "https://cdn.discordapp.com/emojis/390007085326139393.png");
 
     if (readyCheckLobby == null) {
