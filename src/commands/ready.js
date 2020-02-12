@@ -147,7 +147,7 @@ exports.run = async(client, message, args) => {
                         .setTimestamp()
                         .setDescription(`${cancelUserList.join(", ")} ${cancelUserList.length === 1 ? 'has' : 'have'} cancelled the countdown.`)
                         .setThumbnail("https://cdn.discordapp.com/attachments/387026235458584597/390386951557218315/dottedClose.gif")
-                        .setAuthor(client.user.username, "https://cdn.discordapp.com/emojis/390007085326139393.png");
+                        .setAuthor(client.user.username, "https://cdn.discordapp.com/attachments/160594618478493696/673758112225820672/icsbot1.png");
 
                     await message.channel.send(cancelEmbed);
 
