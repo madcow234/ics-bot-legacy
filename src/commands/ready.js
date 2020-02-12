@@ -15,8 +15,12 @@ exports.run = async(client, message, args) => {
         // If the message contains any mentions, add them to the readyCheckUsersMap
         let mentionsArray = message.mentions.users.array();
         if (mentionsArray.length > 0) {
+            readyCheckUsersMap.set(message.author, false);
+
             mentionsArray.forEach(user => {
-                readyCheckUsersMap.set(user, false);
+                if (user !== message.author) {
+                    readyCheckUsersMap.set(user, false);
+                }
             });
 
         } else {
