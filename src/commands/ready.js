@@ -1,4 +1,5 @@
 import { executeCountdown } from '../templates/countdown';
+import { newErrorEmbed } from '../templates/embed';
 import { RichEmbed } from 'discord.js';
 import messageConstants from '../../resources/message-constants'
 import log from 'winston';
@@ -17,6 +18,9 @@ exports.run = async(client, message, args) => {
             mentionsArray.forEach(user => {
                 readyCheckUsersMap.set(user, false);
             });
+
+        } else {
+            return await message.channel.send(newErrorEmbed(client, `You can't ready with yourself, ${message.author.username}...mention some friends!`)).catch(err => log.error(err));
         }
 
         // Build a mentionsOutputArray by creating mentions for each user in the readyCheckUsersMap
@@ -26,7 +30,7 @@ exports.run = async(client, message, args) => {
         }
 
         // Send the READY_UP alert, wait for the server to receive and return it, then save it
-        let readyUpMessage = await message.channel.send(messageConstants.ALERT.READY_UP + mentionsOutputArray.join(", ")).catch(err => console.log(err));
+        let readyUpMessage = await message.channel.send(messageConstants.ALERT.READY_UP + mentionsOutputArray.join(", ")).catch(err => log.error(err));
 
         // Initialize the readyCheckLobby, wait for the server to receive and return it, then save it
         let readyCheckLobby = await setReadyCheckLobby(client, null, readyUsers, unreadyUsers, message);
