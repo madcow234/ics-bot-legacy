@@ -1,11 +1,11 @@
-import { newErrorEmbed } from '../templates/embed.js'
+import { ErrorEmbed } from '../templates/embed.js'
 import { getCommands } from '../commands'
 import log from 'winston';
 
 exports.run = async(client, message, args) => {
     try {
         if (args.length === 0) {
-            return message.channel.send(newErrorEmbed(client, `Hi ${message.author.username}! I'm doing well, but I can't help you if you don't issue a command.`))
+            return await message.channel.send(ErrorEmbed(client, `Hi ${message.author.username}! I'm doing well, but I can't help you if you don't issue a command.`))
         }
 
         // Read the /commands/ folder and create a list of available commands to verify user-issued commands against
@@ -15,17 +15,17 @@ exports.run = async(client, message, args) => {
 
         // Log a warning if there are no files in the directory
         if (availableCommands.length === 0) {
-            return message.channel.send(newErrorEmbed(client, `I'm so confused...I can't remember any commands right now.`));
+            return await message.channel.send(ErrorEmbed(client, `I'm so confused...I can't remember any commands right now.`));
         }
 
         // Exit and notify the user if they attempted to issue a command that is not available in the /commands/ folder
         if (availableCommands.lastIndexOf(args[0]) === -1) {
-            return message.channel.send(newErrorEmbed(client, `I'm sorry, '${args[0]}' is not a valid command.`));
+            return await message.channel.send(ErrorEmbed(client, `I'm sorry, '${args[0]}' is not a valid command.`));
         }
 
         // Execute the proper command file
         let commandFile = require(`../commands/${args[0]}.js`);
-        return commandFile.run(client, message, args);
+        return await commandFile.run(client, message, args);
 
     } catch (err) {
         log.error(`[/monitors/commands-monitor.js] ${err.message}`);

@@ -1,106 +1,111 @@
 import { executeCountdown } from '../templates/countdown';
-import { newErrorEmbed } from '../templates/embed';
-import { RichEmbed } from 'discord.js';
+import { ErrorEmbed, CancelReadyCheckEmbed, ReadyCheckLobbyEmbed } from '../templates/embed';
+import { Sleep } from '../utils/timer';
 import messageConstants from '../../resources/message-constants'
 import log from 'winston';
 
 exports.run = async(client, message, args) => {
     try {
+        // Gather any mentions attached to the ready check initiation message
+        let mentionsArray = message.mentions.users.array();
+
+        // If nobody was mentioned, send an error message to the channel and return
+        if (mentionsArray.length === 0) {
+            return await message.channel.send(ErrorEmbed(client, `You can't ready with yourself, ${message.author.username}...mention some friends!`));
+        }
+
         let readyCheckUsersMap = new Map();
         let mentionsOutputArray = [];
         let readyUsers = [];
         let unreadyUsers = [];
         let alertMessages = [];
+        let reactionMenuEmojis = ['🆗', '🔄', '🛑', '🔔'];
 
-        // If the message contains any mentions, add them to the readyCheckUsersMap
-        let mentionsArray = message.mentions.users.array();
-        if (mentionsArray.length > 0) {
-            readyCheckUsersMap.set(message.author, false);
+        // Add the user that initiated the ready check to the map first
+        readyCheckUsersMap.set(message.author.id, false);
 
-            mentionsArray.forEach(user => {
-                if (user !== message.author) {
-                    readyCheckUsersMap.set(user, false);
-                }
-            });
-
-        } else {
-            return await message.channel.send(newErrorEmbed(client, `You can't ready with yourself, ${message.author.username}...mention some friends!`)).catch(err => log.error(err));
+        // Add the rest of the mentioned users to the map
+        for (let user of mentionsArray) {
+            // Don't add the user that created the ready check twice
+            if (user.id === message.author.id) continue;
+            readyCheckUsersMap.set(user.id, false);
         }
 
         // Build a mentionsOutputArray by creating mentions for each user in the readyCheckUsersMap
         for (let [key, value] of readyCheckUsersMap.entries()) {
-            mentionsOutputArray.push(`<@!${key.id}>`);
-            value === true ? readyUsers.push(`<@!${key.id}>`) : unreadyUsers.push(`<@!${key.id}>`)
+            await mentionsOutputArray.push(`<@!${key}>`);
+            value === true ? readyUsers.push(`<@!${key}>`) : unreadyUsers.push(`<@!${key}>`)
         }
 
         // Send the READY_UP alert, wait for the server to receive and return it, then save it
-        let readyUpMessage = await message.channel.send(messageConstants.ALERT.READY_UP + mentionsOutputArray.join(", ")).catch(err => log.error(err));
+        let readyUpMessage = await message.channel.send(messageConstants.ALERT.READY_UP + mentionsOutputArray.join(", "));
+
+        let readyCheckLobbyEmbed = ReadyCheckLobbyEmbed(client, readyUsers, unreadyUsers);
 
         // Initialize the readyCheckLobby, wait for the server to receive and return it, then save it
-        let readyCheckLobby = await setReadyCheckLobby(client, null, readyUsers, unreadyUsers, message);
+        let readyCheckLobby = await message.channel.send(readyCheckLobbyEmbed);
 
-        let reactionMenuEmojis = ['🆗', '🔄', '🛑', '🔔'];
+        client.on('messageReactionAdd', async(reaction, user) => {
+            if (user.id === client.user.id) return;
 
-        for (const emoji of reactionMenuEmojis) {
-            // Add menu reactions to the readyUpMessage
-            await readyCheckLobby.react(emoji);
-        }
+            if (reaction.message !== readyCheckLobby) return;
 
-        // Create a reaction collector to handle menu actions
-        let reactionCollector = readyCheckLobby.createReactionCollector(
-            (reaction, user) => user !== client.user
-        );
-        reactionCollector.on('collect', async(reaction) => {
-            let users = reaction.users;
+            let users = await reaction.users.array();
             let invalidUser = false;
+            let invalidReaction = false;
 
             // Remove reactions from anyone not in the readyUsersMap
-            users.forEach(user => {
-                if (!readyCheckUsersMap.has(user) && user !== client.user) {
-                    reaction.remove(user.id);
+            for (let user of users) {
+                if (user.id === client.user.id) continue;
+
+                if (!readyCheckUsersMap.has(user.id)) {
+                    await reaction.remove(user.id);
                     invalidUser = true;
                 }
-            });
+            }
+
             if (invalidUser) return;
 
             // Remove any reactions that are not part of the menu
             if (!reactionMenuEmojis.includes(reaction.emoji.name)) {
-                return users.forEach(user => {
-                    reaction.remove(user.id);
-                });
+                for (let user of users) {
+                    await reaction.remove(user.id);
+                    invalidReaction = true;
+                }
             }
+
+            if (invalidReaction) return;
 
             switch (reaction.emoji.name) {
                 case '🆗':
-                    users.forEach(user => {
-                        if (user === client.user) return;
-                        // Remove reaction if the user is not in the readyCheckUsersMap
-                        if (!readyCheckUsersMap.has(user)) return reaction.remove(user.id);
-
-                        readyCheckUsersMap.set(user, true);
-                    });
-
                     readyUsers = [];
                     unreadyUsers = [];
 
-                    for (let [key, value] of readyCheckUsersMap.entries()) {
-                        value === true ? readyUsers.push(`<@!${key.id}>`) : unreadyUsers.push(`<@!${key.id}>`);
+                    for (let user of users) {
+                        if (user.id === client.user.id) continue;
+                        await readyCheckUsersMap.set(user.id, true);
                     }
 
-                    readyCheckLobby = await setReadyCheckLobby(client, readyCheckLobby, readyUsers, unreadyUsers, message);
+                    for (let [key, value] of readyCheckUsersMap.entries()) {
+                        value === true ? readyUsers.push(`<@!${key}>`) : unreadyUsers.push(`<@!${key}>`);
+                    }
 
-                    if (readyUsers.length === readyCheckUsersMap.size) {
-                        reactionCollector.stop();
+                    readyCheckLobbyEmbed.fields[0].value = `${readyUsers.length > 0 ? readyUsers.join(", ") : "Waiting..."}`;
+                    readyCheckLobbyEmbed.fields[1].value = `${unreadyUsers.length > 0 ? unreadyUsers.join(", "): "Everyone is ready!"}`;
+
+                    readyCheckLobby = await readyCheckLobby.edit(readyCheckLobbyEmbed);
+
+                    if (Array.from(readyCheckUsersMap.values()).every(value => value === true)) {
+
                         let messagesToDelete = alertMessages;
                         messagesToDelete.push(readyUpMessage);
                         messagesToDelete.push(readyCheckLobby);
-
-                        message.channel.bulkDelete(messagesToDelete).catch(err => console.log(err));
+                        await message.channel.bulkDelete(messagesToDelete);
 
                         let hereWeGoMessage = await message.channel.send(messageConstants.ALERT.HERE_WE_GO + mentionsOutputArray.join(", "));
-                        messagesToDelete.push(hereWeGoMessage);
 
-                        message.channel.bulkDelete(messagesToDelete).catch(err => console.log(err));
+                        await Sleep(2100);
+                        await hereWeGoMessage.delete();
 
                         return executeCountdown(client, message, `A countdown successfully completed for:\n${mentionsOutputArray.join(", ")}`);
                     }
@@ -108,60 +113,62 @@ exports.run = async(client, message, args) => {
                     break;
 
                 case '🔄':
-                    users.forEach(user => {
-                        if (user === client.user) return;
-                        reaction.remove(user.id);
-                    });
+                    // Delete all the lobby and alert messages
+                    let messagesToDelete = alertMessages;
+                    messagesToDelete.push(readyUpMessage);
+                    messagesToDelete.push(readyCheckLobby);
+                    await message.channel.bulkDelete(messagesToDelete);
 
-                    readyCheckLobby.reactions.forEach(reaction => {
-                        if (reaction.emoji.name === '🆗') {
-                            reaction.users.forEach(user => {
-                                if (user !== client.user) {
-                                    reaction.remove(user.id);
-                                }
-                            });
-                        }
-                    });
+                    readyUsers = [];
+                    unreadyUsers = [];
 
-                    message.channel.bulkDelete(alertMessages).catch(err => console.log(err));
+                    for (let key of readyCheckUsersMap.keys()) {
+                        readyCheckUsersMap.set(key, false);
+                    }
+
+                    for (let [key, value] of readyCheckUsersMap.entries()) {
+                        value === true ? readyUsers.push(`<@!${key}>`) : unreadyUsers.push(`<@!${key}>`);
+                    }
+
+                    readyUpMessage = await message.channel.send(messageConstants.ALERT.READY_UP + mentionsOutputArray.join(", "));
+
+                    readyCheckLobbyEmbed = ReadyCheckLobbyEmbed(client, readyUsers, unreadyUsers);
+
+                    // Initialize the readyCheckLobby, wait for the server to receive and return it, then save it
+                    readyCheckLobby = await message.channel.send(readyCheckLobbyEmbed);
+
+                    for (let emoji of reactionMenuEmojis) {
+                        // Add menu reactions to the readyUpMessage
+                        await readyCheckLobby.react(emoji);
+                    }
 
                     break;
 
                 case '🛑':
-                    reactionCollector.stop();
-
                     let cancelUserList = [];
-                    users.forEach(user => {
-                        if (user !== client.user) {
+                    for (let user of users) {
+                        if (user.id !== client.user.id) {
                             cancelUserList.push(user.username)
                         }
-                    });
+                    }
 
-                    let messagesToDelete = alertMessages;
-                    messagesToDelete.push(readyUpMessage);
-                    messagesToDelete.push(readyCheckLobby);
-                    message.channel.bulkDelete(messagesToDelete).catch(err => console.log(err));
+                    // Delete all the lobby and alert messages
+                    await message.channel.bulkDelete([readyCheckLobby, readyUpMessage]);
 
-                    let cancelEmbed = new RichEmbed()
-                        .setTitle(`ICS History Report`)
-                        .setTimestamp()
-                        .setDescription(`${cancelUserList.join(", ")} ${cancelUserList.length === 1 ? 'has' : 'have'} cancelled the countdown.`)
-                        .setThumbnail("https://cdn.discordapp.com/attachments/387026235458584597/390386951557218315/dottedClose.gif")
-                        .setAuthor(client.user.username, "https://cdn.discordapp.com/attachments/160594618478493696/673758112225820672/icsbot1.png");
-
-                    await message.channel.send(cancelEmbed);
+                    // Send the cancel ready check embed
+                    await message.channel.send(CancelReadyCheckEmbed(client, `${cancelUserList.join(", ")} ${cancelUserList.length === 1 ? 'has' : 'have'} cancelled the countdown.`));
 
                     break;
 
                 case '🔔':
-                    users.forEach(user => {
-                        if (user !== client.user) {
-                            reaction.remove(user.id);
-                        }
-                    });
-
-                    let alertMessage = await message.channel.send(messageConstants.ALERT.READY_UP + unreadyUsers.join(", ")).catch(err => console.log(err));
+                    let alertMessage = await message.channel.send(messageConstants.ALERT.READY_UP + unreadyUsers.join(", "));
                     alertMessages.push(alertMessage);
+
+                    for (let user of users) {
+                        if (user.id !== client.user.id) {
+                            await reaction.remove(user.id);
+                        }
+                    }
 
                     break;
             }
@@ -169,38 +176,29 @@ exports.run = async(client, message, args) => {
 
         // If a user removes their "ok" reaction, we need to remove them from the readyUsers list and add them to the unreadyUsers list
         client.on("messageReactionRemove", async(messageReaction, user) => {
-            if (messageReaction.emoji.name === '🆗' && readyCheckUsersMap.has(user)) {
+            if (messageReaction.emoji.name === '🆗' && readyCheckUsersMap.has(user.id)) {
                 readyUsers = [];
                 unreadyUsers = [];
 
-                readyCheckUsersMap.set(user, false);
+                readyCheckUsersMap.set(user.id, false);
 
                 for (let [key, value] of readyCheckUsersMap.entries()) {
-                    value === true ? readyUsers.push(`<@!${key.id}>`) : unreadyUsers.push(`<@!${key.id}>`)
+                    value === true ? readyUsers.push(`<@!${key}>`) : unreadyUsers.push(`<@!${key}>`)
                 }
 
-                readyCheckLobby = await setReadyCheckLobby(client, readyCheckLobby, readyUsers, unreadyUsers, message);
+                readyCheckLobbyEmbed.fields[0].value = `${readyUsers.length > 0 ? readyUsers.join(", ") : "Waiting..."}`;
+                readyCheckLobbyEmbed.fields[1].value = `${unreadyUsers.length > 0 ? unreadyUsers.join(", "): "Everyone is ready!"}`;
+
+                readyCheckLobby = await readyCheckLobby.edit(readyCheckLobbyEmbed);
             }
         });
 
+        for (let emoji of reactionMenuEmojis) {
+            // Add menu reactions to the readyUpMessage
+            await readyCheckLobby.react(emoji);
+        }
+
     } catch (err) {
-        log.error(`[/commands/now.js] ${err.message}`);
-    }
-};
-
-// Send the readyCheckLobby to the server and return the message
-const setReadyCheckLobby = async (client, readyCheckLobby, readyUsers, unreadyUsers, message) => {
-    let readyCheckLobbyEmbed = new RichEmbed()
-        .setTitle(`Ready Check Lobby`)
-        .setTimestamp()
-        .setImage('https://cdn.discordapp.com/attachments/160594618478493696/677024135326466048/ics.gif')
-        .addField("**Ready:**", `${readyUsers.length > 0 ? readyUsers.join(", ") : "Waiting..."}`)
-        .addField("**Waiting For:**", `${unreadyUsers.length > 0 ? unreadyUsers.join(", "): "Everyone is ready!"}`)
-        .setAuthor(client.user.username, "https://cdn.discordapp.com/attachments/160594618478493696/673758112225820672/icsbot1.png");
-
-    if (readyCheckLobby == null) {
-        return await message.channel.send(readyCheckLobbyEmbed).catch(err => console.log(err));
-    } else {
-        return await readyCheckLobby.edit(readyCheckLobbyEmbed).catch(err => console.log(err));
+        log.error(`[/commands/ready.js] ${err.message}`);
     }
 };
