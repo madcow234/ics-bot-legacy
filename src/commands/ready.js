@@ -1,17 +1,19 @@
-import { executeCountdown } from '../templates/countdown';
-import { ErrorEmbed, CancelReadyCheckEmbed, ReadyCheckLobbyEmbed } from '../templates/embed';
-import { Sleep } from '../utils/timer';
-import messageConstants from '../../resources/message-constants'
-import log from 'winston';
+import { newErrorEmbed,
+         newCancelReadyCheckEmbed,
+         newReadyCheckLobbyEmbed } from '../templates/embed';
+import { executeCountdown }        from '../templates/countdown';
+import { sleep }                   from '../utils/timer';
+import messageConstants            from '../../resources/message-constants'
+import log                         from 'winston';
 
-exports.run = async(client, message, args) => {
+exports.run = async (client, message) => {
     try {
         // Gather any mentions attached to the ready check initiation message
         let mentionsArray = message.mentions.users.array();
 
         // If nobody was mentioned, send an error message to the channel and return
         if (mentionsArray.length === 0) {
-            return await message.channel.send(ErrorEmbed(client, `You can't ready with yourself, ${message.author.username}...mention some friends!`));
+            return await message.channel.send(newErrorEmbed(`You can't ready with yourself, ${message.author.username}...mention some friends!`));
         }
 
         let readyCheckUsersMap = new Map();
@@ -33,14 +35,14 @@ exports.run = async(client, message, args) => {
 
         // Build a mentionsOutputArray by creating mentions for each user in the readyCheckUsersMap
         for (let [key, value] of readyCheckUsersMap.entries()) {
-            await mentionsOutputArray.push(`<@!${key}>`);
+            mentionsOutputArray.push(`<@!${key}>`);
             value === true ? readyUsers.push(`<@!${key}>`) : unreadyUsers.push(`<@!${key}>`)
         }
 
         // Send the READY_UP alert, wait for the server to receive and return it, then save it
         let readyUpMessage = await message.channel.send(messageConstants.ALERT.READY_UP + mentionsOutputArray.join(", "));
 
-        let readyCheckLobbyEmbed = ReadyCheckLobbyEmbed(client, readyUsers, unreadyUsers);
+        let readyCheckLobbyEmbed = newReadyCheckLobbyEmbed(readyUsers, unreadyUsers);
 
         // Initialize the readyCheckLobby, wait for the server to receive and return it, then save it
         let readyCheckLobby = await message.channel.send(readyCheckLobbyEmbed);
@@ -104,10 +106,10 @@ exports.run = async(client, message, args) => {
 
                         let hereWeGoMessage = await message.channel.send(messageConstants.ALERT.HERE_WE_GO + mentionsOutputArray.join(", "));
 
-                        await Sleep(2100);
+                        await sleep(2100);
                         await hereWeGoMessage.delete();
 
-                        return executeCountdown(client, message, `A countdown successfully completed for:\n${mentionsOutputArray.join(", ")}`);
+                        return executeCountdown(message, `A countdown successfully completed for:\n${mentionsOutputArray.join(", ")}`);
                     }
 
                     break;
@@ -132,7 +134,7 @@ exports.run = async(client, message, args) => {
 
                     readyUpMessage = await message.channel.send(messageConstants.ALERT.READY_UP + mentionsOutputArray.join(", "));
 
-                    readyCheckLobbyEmbed = ReadyCheckLobbyEmbed(client, readyUsers, unreadyUsers);
+                    readyCheckLobbyEmbed = newReadyCheckLobbyEmbed(readyUsers, unreadyUsers);
 
                     // Initialize the readyCheckLobby, wait for the server to receive and return it, then save it
                     readyCheckLobby = await message.channel.send(readyCheckLobbyEmbed);
@@ -156,7 +158,7 @@ exports.run = async(client, message, args) => {
                     await message.channel.bulkDelete([readyCheckLobby, readyUpMessage]);
 
                     // Send the cancel ready check embed
-                    await message.channel.send(CancelReadyCheckEmbed(client, `${cancelUserList.join(", ")} ${cancelUserList.length === 1 ? 'has' : 'have'} cancelled the countdown.`));
+                    await message.channel.send(newCancelReadyCheckEmbed(`${cancelUserList.join(", ")} ${cancelUserList.length === 1 ? 'has' : 'have'} cancelled the countdown.`));
 
                     break;
 

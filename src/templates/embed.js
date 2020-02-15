@@ -1,58 +1,70 @@
-import { RichEmbed } from 'discord.js';
+import { RichEmbed, Client } from 'discord.js';
 
-const iconUrl = 'https://cdn.discordapp.com/attachments/160594618478493696/673758112225820672/icsbot1.png';
+const authorIconUrl = 'https://cdn.discordapp.com/attachments/160594618478493696/673758112225820672/icsbot1.png';
 const errorThumbnailUrl = 'https://cdn.discordapp.com/attachments/387026235458584597/390386949631901706/flickerError.gif';
 const countdownHistoryThumbnailUrl = 'https://cdn.discordapp.com/attachments/160821484770557953/673758923446157322/icsbotanimated.gif';
 const readyCheckLobbyImageUrl = 'https://cdn.discordapp.com/attachments/160594618478493696/677024135326466048/ics.gif';
 const cancelReadyCheckThumbnailUrl = 'https://cdn.discordapp.com/attachments/387026235458584597/390386951557218315/dottedClose.gif';
 
-exports.ClientReadyEmbed = (client) => {
+let CLIENT = new Client();
+
+/**
+ * Sets the Discord client so it does not have to be passed to every embed template.
+ * THIS IS REQUIRED TO USE TEMPLATES! SET THIS WHEN BOOTSTRAPPING THE APPLICATION!
+ *
+ * @type {module:"discord.js".Client} a populated Discord {@link Client}
+ */
+exports.setClient = async (client) => {
+    CLIENT = client;
+};
+
+exports.newClientReadyEmbed = () => {
     return new RichEmbed()
         .setTimestamp()
         .setDescription(`Grab your bangle and get ready to smangle!`)
-        .setAuthor(client.user.username, iconUrl);
+        .setAuthor(CLIENT.user.username, authorIconUrl);
 };
 
-exports.ErrorEmbed = (client, errorDescription) => {
+exports.newErrorEmbed = (errorDescription) => {
     return new RichEmbed()
         .setTitle(`Error Report`)
         .setTimestamp()
         .setDescription(errorDescription)
         .setThumbnail(errorThumbnailUrl)
-        .setAuthor(client.user.username, iconUrl);
+        .setAuthor(CLIENT.user.username, authorIconUrl);
 };
 
-exports.CountdownEmbed = (client, image) => {
+exports.newCountdownEmbed = (image) => {
     return new RichEmbed()
         .setImage(image)
         .setTimestamp()
-        .setAuthor(client.user.username, iconUrl);
+        .setAuthor(CLIENT.user.username, authorIconUrl);
 };
 
-exports.CountdownHistoryEmbed = (client, historyDescription) => {
+exports.newCountdownHistoryEmbed = (historyDescription) => {
     return new RichEmbed()
         .setTitle(`ICS History Report`)
         .setTimestamp()
         .setDescription(historyDescription)
         .setThumbnail(countdownHistoryThumbnailUrl)
-        .setAuthor(client.user.username, iconUrl);
+        .setAuthor(CLIENT.user.username, authorIconUrl);
 };
 
-exports.ReadyCheckLobbyEmbed = (client, readyUsers, unreadyUsers) => {
+exports.newReadyCheckLobbyEmbed = (readyUsers, unreadyUsers) => {
     return new RichEmbed()
         .setTitle(`Ready Check Lobby`)
         .setTimestamp()
         .setImage(readyCheckLobbyImageUrl)
         .addField("**Ready:**", `${readyUsers.length > 0 ? readyUsers.join(", ") : "Waiting..."}`)
         .addField("**Waiting For:**", `${unreadyUsers.length > 0 ? unreadyUsers.join(", ") : "Everyone is ready!"}`)
-        .setAuthor(client.user.username, iconUrl);
+        .setAuthor(CLIENT.user.username, authorIconUrl);
 };
 
-exports.CancelReadyCheckEmbed = (client, description) => {
+exports.newCancelReadyCheckEmbed = (description) => {
     return new RichEmbed()
         .setTitle(`ICS History Report`)
         .setTimestamp()
         .setDescription(description)
         .setThumbnail(cancelReadyCheckThumbnailUrl)
-        .setAuthor(client.user.username, iconUrl);
+        .setAuthor(CLIENT.user.username, authorIconUrl);
 };

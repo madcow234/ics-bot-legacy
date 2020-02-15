@@ -1,9 +1,9 @@
 import { executeCountdown } from '../templates/countdown';
-import log from 'winston';
+import log                  from 'winston';
 
-exports.run = async(client, message, args) => {
+exports.run = async (client, message) => {
     try {
-        await executeCountdown(client, message, `An instant countdown successfully completed.`);
+        await executeCountdown(message, `An instant countdown successfully completed.`);
 
     } catch (err) {
         log.error(`[/commands/now.js] ${err.message}`);

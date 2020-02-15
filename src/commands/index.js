@@ -1,12 +1,12 @@
 import { readdirSync } from 'fs';
-import log         from 'winston';
+import log             from 'winston';
 
-export async function getCommands() {
+exports.getCommands = async () => {
     try {
         let commandsArray = [];
 
         // Read the files in this directory
-        let commandFiles = readdirSync(__dirname);
+        let commandFiles = await readdirSync(__dirname);
 
         // Log a warning if the directory is empty or the index.js file is the only one in the directory
         if (commandFiles.length === 0 || (commandFiles.length === 1 && commandFiles[0] === 'index.js')) {
@@ -15,18 +15,17 @@ export async function getCommands() {
         }
 
         // Create a Discord event listener for each file in this directory
-        commandFiles.forEach(file => {
+        for (let file of commandFiles) {
             // Skip this file because it is not an event
             if (file === 'index.js') return;
 
             let commandName = file.split(".")[0];
-
             commandsArray.push(commandName);
-        });
+        }
 
         return commandsArray;
 
-    } catch (error) {
-        log.warn(`[/commands/index.js] Could not retrieve commands. Reason: '${error}'`);
+    } catch (err) {
+        log.error(`[/commands/index.js] Could not retrieve commands. Reason: '${err}'`);
     }
-}
+};

@@ -1,48 +1,59 @@
-import { CountdownEmbed, CountdownHistoryEmbed } from '../templates/embed';
-import { Sleep } from '../utils/timer';
-import log from "winston";
+import { newCountdownEmbed,
+         newCountdownHistoryEmbed } from '../templates/embed';
+import { sleep }                    from '../utils/timer';
+import messageConstants             from '../../resources/message-constants';
+import log                          from "winston";
 
-exports.executeCountdown = async(client, message, historyDescription) => {
+exports.executeCountdown = async (message, historyDescription) => {
     try {
-        const messageConstants = await require("../../resources/message-constants.json");
-
         let stepNums = ["ONE", "TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE"];
 
-        let countdownEmbed = CountdownEmbed(client, messageConstants.IMAGES.ONE);
+        // Create the countdown embed that will be edited as it commences
+        let countdownEmbed = newCountdownEmbed(messageConstants.IMAGES.ONE);
 
+        // Send the countdown embed to the channel and save it
         let countdownEmbedMessage = await message.channel.send(countdownEmbed);
 
         let description = "";
         for (const step of stepNums) {
             if (step === "ONE") {
-                await Sleep(1100);
-                await countdownEmbedMessage.edit(countdownEmbed);
+                // Step 1 consists of flashing ALERT twice
 
-                await Sleep(1100);
-                await countdownEmbedMessage.edit(countdownEmbed);
+                await sleep(1100);
+                // We edit the message without changing the embed content so it will flash on the screen
+                countdownEmbedMessage = await countdownEmbedMessage.edit(countdownEmbed);
+
+                await sleep(1100);
+                // We edit the message without changing the embed content so it will flash on the screen
+                countdownEmbedMessage = await countdownEmbedMessage.edit(countdownEmbed);
 
             } else if (step === "TWO") {
-                countdownEmbed.setImage(messageConstants.IMAGES[step]);
+                // Step 2 consists of flashing ICS once
 
-                await Sleep(1100);
+                countdownEmbed.setImage(messageConstants.IMAGES[step]);
+                await sleep(1100);
                 countdownEmbedMessage = await countdownEmbedMessage.edit(countdownEmbed);
 
             } else {
+                // For the remainder of the steps, we:
+                //      append the current countdown step to the countdown embed
+                //      set the image for the next "mario kart" style countdown
+
                 description += `\n\n${messageConstants.COUNTDOWN[step]}`;
                 countdownEmbed.setDescription(description).setImage(messageConstants.IMAGES[step]);
 
-                await Sleep(1100);
+                await sleep(1100);
                 countdownEmbedMessage = await countdownEmbedMessage.edit(countdownEmbed);
             }
         }
 
-        let historyEmbed = CountdownHistoryEmbed(client, historyDescription);
-
-        await Sleep(5100);
+        // Wait 5 seconds, then delete the countdown embed message
+        await sleep(5100);
         await countdownEmbedMessage.delete();
 
-        await Sleep(100);
-        await message.channel.send(historyEmbed);
+        // Send the history embed message to the channel
+        await sleep(100);
+        await message.channel.send(newCountdownHistoryEmbed(historyDescription));
 
     } catch (err) {
         log.error(`[/templates/countdown.js] ${err.message}`);

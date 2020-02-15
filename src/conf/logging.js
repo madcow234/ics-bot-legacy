@@ -1,18 +1,17 @@
 import winston from 'winston';
 import fs      from 'fs';
 
-export function initLogger() {
-    const nodeEnv = process.env.NODE_ENV;
+exports.initLogger = async () => {
+    const NODE_ENV = process.env.NODE_ENV;
 
-    if (nodeEnv === 'production') {
+    if (NODE_ENV === 'production') {
         // Log to console in production because Heroku will add STDOUT to the log stream
-        setConsoleLogger();
+        await setConsoleLogger();
 
-    } else if (nodeEnv === 'development' || nodeEnv === 'test') {
-
+    } else if (NODE_ENV === 'development' || NODE_ENV === 'test') {
         try {
             // Attempt to create a /logs directory
-            fs.mkdirSync('./logs');
+            await fs.mkdirSync('./logs');
 
         } catch (err) {
             // If the /logs directory already exists, continue
@@ -20,23 +19,24 @@ export function initLogger() {
             if (err.code !== 'EEXIST') {
                 console.log(`An error has occurred that cannot be fixed (code: ${err.code})!`);
                 console.log(`Switching to console logging...`);
-                setConsoleLogger();
+                await setConsoleLogger();
             }
         }
 
-        const filename = nodeEnv === 'test' ? 'ics-bot.test.log' : 'ics-bot.log';
+        const filename = NODE_ENV === 'test' ? 'ics-bot.test.log' : 'ics-bot.log';
 
         // As long as a /logs directory exists, return a file logger
-        setFileLogger('logs', `${filename}`);
+        await setFileLogger('logs', `${filename}`);
 
     } else {
-        console.log(`Cannot determine current Node environment! You may need to set a "process.env.NODE_ENV" variable in your .env file.`);
+        console.log(`Cannot determine current Node environment! You may need to set a "process.env.NODE_ENV" environment variable or create a .env file.`);
         console.log(`Switching to console logging...`);
-        setConsoleLogger();
+        await setConsoleLogger();
     }
-}
+};
 
-function setConsoleLogger() {
+const setConsoleLogger = async () => {
+    // noinspection JSCheckFunctionSignatures
     winston.configure({
         transports: [
             new winston.transports.Console({
@@ -48,9 +48,9 @@ function setConsoleLogger() {
             }),
         ]
     });
-}
+};
 
-function setFileLogger(directoryName, filename) {
+const setFileLogger = async (directoryName, filename) => {
     winston.configure({
         transports: [
             new winston.transports.File({
@@ -62,4 +62,4 @@ function setFileLogger(directoryName, filename) {
             })
         ]
     });
-}
+};

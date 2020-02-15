@@ -1,6 +1,5 @@
 {
   "ALERT": {
-    "COUNTDOWN_IN_PROGRESS": "**Countdown already in progress!  Multiple countdowns are currently not supported.**",
     "READY_UP": "**Click OK to ready up:** ",
     "HERE_WE_GO": "**Here we go!** "
   },
