@@ -1,12 +1,15 @@
 import { RichEmbed, Client } from 'discord.js';
 
-const authorIconUrl = 'https://cdn.discordapp.com/attachments/160594618478493696/673758112225820672/icsbot1.png';
-const errorThumbnailUrl = 'https://cdn.discordapp.com/attachments/387026235458584597/390386949631901706/flickerError.gif';
-const countdownHistoryThumbnailUrl = 'https://cdn.discordapp.com/attachments/160821484770557953/673758923446157322/icsbotanimated.gif';
-const readyCheckLobbyImageUrl = 'https://cdn.discordapp.com/attachments/160594618478493696/677024135326466048/ics.gif';
-const cancelReadyCheckThumbnailUrl = 'https://cdn.discordapp.com/attachments/387026235458584597/390386951557218315/dottedClose.gif';
-
-let CLIENT = new Client();
+const config = {
+    client: new Client(),
+    images: {
+        authorIconUrl: 'https://cdn.discordapp.com/attachments/160594618478493696/673758112225820672/icsbot1.png',
+        errorThumbnailUrl: 'https://cdn.discordapp.com/attachments/387026235458584597/390386949631901706/flickerError.gif',
+        countdownHistoryThumbnailUrl: 'https://cdn.discordapp.com/attachments/160821484770557953/673758923446157322/icsbotanimated.gif',
+        readyCheckLobbyImageUrl: 'https://cdn.discordapp.com/attachments/160594618478493696/677024135326466048/ics.gif',
+        cancelReadyCheckThumbnailUrl: 'https://cdn.discordapp.com/attachments/387026235458584597/390386951557218315/dottedClose.gif'
+    }
+};
 
 /**
  * Sets the Discord client so it does not have to be passed to every embed template.
@@ -15,14 +18,14 @@ let CLIENT = new Client();
  * @type {module:"discord.js".Client} a populated Discord {@link Client}
  */
 exports.setClient = async (client) => {
-    CLIENT = client;
+    config.client = client;
 };
 
 exports.newClientReadyEmbed = () => {
     return new RichEmbed()
         .setTimestamp()
         .setDescription(`Grab your bangle and get ready to smangle!`)
-        .setAuthor(CLIENT.user.username, authorIconUrl);
+        .setAuthor(config.client.user.username, config.images.authorIconUrl);
 };
 
 exports.newErrorEmbed = (errorDescription) => {
@@ -30,15 +33,15 @@ exports.newErrorEmbed = (errorDescription) => {
         .setTitle(`Error Report`)
         .setTimestamp()
         .setDescription(errorDescription)
-        .setThumbnail(errorThumbnailUrl)
-        .setAuthor(CLIENT.user.username, authorIconUrl);
+        .setThumbnail(config.images.errorThumbnailUrl)
+        .setAuthor(config.client.user.username, config.images.authorIconUrl);
 };
 
 exports.newCountdownEmbed = (image) => {
     return new RichEmbed()
         .setImage(image)
         .setTimestamp()
-        .setAuthor(CLIENT.user.username, authorIconUrl);
+        .setAuthor(config.client.user.username, config.images.authorIconUrl);
 };
 
 exports.newCountdownHistoryEmbed = (historyDescription) => {
@@ -46,18 +49,18 @@ exports.newCountdownHistoryEmbed = (historyDescription) => {
         .setTitle(`ICS History Report`)
         .setTimestamp()
         .setDescription(historyDescription)
-        .setThumbnail(countdownHistoryThumbnailUrl)
-        .setAuthor(CLIENT.user.username, authorIconUrl);
+        .setThumbnail(config.images.countdownHistoryThumbnailUrl)
+        .setAuthor(config.client.user.username, config.images.authorIconUrl);
 };
 
 exports.newReadyCheckLobbyEmbed = (readyUsers, unreadyUsers) => {
     return new RichEmbed()
         .setTitle(`Ready Check Lobby`)
         .setTimestamp()
-        .setImage(readyCheckLobbyImageUrl)
+        .setImage(config.images.readyCheckLobbyImageUrl)
         .addField("**Ready:**", `${readyUsers.length > 0 ? readyUsers.join(", ") : "Waiting..."}`)
         .addField("**Waiting For:**", `${unreadyUsers.length > 0 ? unreadyUsers.join(", ") : "Everyone is ready!"}`)
-        .setAuthor(CLIENT.user.username, authorIconUrl);
+        .setAuthor(config.client.user.username, config.images.authorIconUrl);
 };
 
 exports.newCancelReadyCheckEmbed = (description) => {
@@ -65,6 +68,6 @@ exports.newCancelReadyCheckEmbed = (description) => {
         .setTitle(`ICS History Report`)
         .setTimestamp()
         .setDescription(description)
-        .setThumbnail(cancelReadyCheckThumbnailUrl)
-        .setAuthor(CLIENT.user.username, authorIconUrl);
+        .setThumbnail(config.images.cancelReadyCheckThumbnailUrl)
+        .setAuthor(config.client.user.username, config.images.authorIconUrl);
 };
