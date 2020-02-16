@@ -48,9 +48,9 @@ exports.run = async (client, message) => {
         let readyCheckLobby = await message.channel.send(readyCheckLobbyEmbed);
 
         client.on('messageReactionAdd', async(reaction, user) => {
-            if (user.id === client.user.id) return;
-
             if (reaction.message !== readyCheckLobby) return;
+
+            if (user.id === client.user.id) return;
 
             let users = await reaction.users.array();
             let invalidUser = false;
@@ -178,6 +178,8 @@ exports.run = async (client, message) => {
 
         // If a user removes their "ok" reaction, we need to remove them from the readyUsers list and add them to the unreadyUsers list
         client.on("messageReactionRemove", async(messageReaction, user) => {
+            if (messageReaction.message !== readyCheckLobby) return;
+
             if (messageReaction.emoji.name === '🆗' && readyCheckUsersMap.has(user.id)) {
                 readyUsers = [];
                 unreadyUsers = [];
