@@ -34,9 +34,9 @@ exports.run = async (message, args) => {
             return;
         }
 
-        // Execute the proper command file
+        // Execute the proper command file, passing in the remaining arguments (does not include the prefix or the command)
         let commandFile = require(`../commands/${args[0]}.js`);
-        await commandFile.run(message, args);
+        await commandFile.run(message, args.slice(1));
 
     } catch (err) {
         log.error(`[/monitors/commands-monitor.js] ${err}`);

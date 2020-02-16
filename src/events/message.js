@@ -28,7 +28,7 @@ exports.run = async (message) => {
         // Delete the command message
         await message.delete();
 
-        // Run the command monitor
+        // Remove the command prefix from the args list and send it to the command monitor
         await run(message, args.slice(1));
 
     } catch (err) {
