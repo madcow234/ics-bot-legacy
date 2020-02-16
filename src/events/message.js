@@ -1,17 +1,17 @@
-import { run } from '../monitors/command-monitor';
-import log     from 'winston';
+import { config } from '../conf/config';
+import { run }    from '../monitors/command-monitor';
+import log        from 'winston';
 
 /**
  * Listens to all messages and filters which ones should be sent to the command monitor.
  *
- * @param client the Discord client (the bot)
  * @param message the Discord message
  * @returns {Promise<void>} an empty Promise
  */
-exports.run = async (client, message) => {
+exports.run = async (message) => {
     try {
         // Don't respond to bots...unless I'm the one talking
-        if (message.author.bot && message.author.id !== client.user.id) return;
+        if (message.author.bot && message.author.id !== config.client.user.id) return;
 
         // Don't respond if the message doesn't start with the prefix
         if (!message.content.startsWith(process.env.PREFIX)) return;
@@ -29,7 +29,7 @@ exports.run = async (client, message) => {
         await message.delete();
 
         // Run the command monitor
-        await run(client, message, args.slice(1));
+        await run(message, args.slice(1));
 
     } catch (err) {
         log.error(`[/events/message.js] ${err}`);

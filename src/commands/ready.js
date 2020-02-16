@@ -2,6 +2,7 @@ import { newErrorEmbed,
          newCancelReadyCheckEmbed,
          newReadyCheckLobbyEmbed } from '../templates/embed';
 import { executeCountdown }        from '../templates/countdown';
+import { config }                  from '../conf/config';
 import { sleep }                   from '../utils/timer';
 import messageConstants            from '../../resources/message-constants'
 import log                         from 'winston';
@@ -9,11 +10,10 @@ import log                         from 'winston';
 /**
  * Creates a ready check lobby, complete with reaction-based menu system, and executes a countdown when everyone is ready.
  *
- * @param client the Discord client (the bot)
  * @param message the message requesting the ready check
  * @returns {Promise<void>} an empty Promise
  */
-exports.run = async (client, message) => {
+exports.run = async (message) => {
     try {
         // Gather any mentions attached to the ready check initiation message
         let mentionsArray = message.mentions.users.array();
@@ -24,11 +24,13 @@ exports.run = async (client, message) => {
             return;
         }
 
+        let client = config.client;
         let readyCheckUsersMap = new Map();
         let mentionsOutputArray = [];
         let readyUsers = [];
         let unreadyUsers = [];
         let alertMessages = [];
+        let messagesToDelete = [];
         let reactionMenuEmojis = ['🆗', '🔄', '🛑', '🔔'];
 
         // Add the user that initiated the ready check to the map first
@@ -124,7 +126,7 @@ exports.run = async (client, message) => {
 
                 case '🔄':
                     // Delete all the lobby and alert messages
-                    let messagesToDelete = alertMessages;
+                    messagesToDelete = alertMessages;
                     messagesToDelete.push(readyUpMessage);
                     messagesToDelete.push(readyCheckLobby);
                     await message.channel.bulkDelete(messagesToDelete);
@@ -163,7 +165,10 @@ exports.run = async (client, message) => {
                     }
 
                     // Delete all the lobby and alert messages
-                    await message.channel.bulkDelete([readyCheckLobby, readyUpMessage]);
+                    messagesToDelete = alertMessages;
+                    messagesToDelete.push(readyUpMessage);
+                    messagesToDelete.push(readyCheckLobby);
+                    await message.channel.bulkDelete(messagesToDelete);
 
                     // Send the cancel ready check embed
                     await message.channel.send(newCancelReadyCheckEmbed(`${cancelUserList.join(", ")} ${cancelUserList.length === 1 ? 'has' : 'have'} cancelled the countdown.`));

@@ -1,20 +1,20 @@
 //import { newClientReadyEmbed } from '../templates/embed.js';
 import { newCreateSmangleLoungeEmbed } from '../templates/embed';
+import { config }                      from '../conf/config';
 import log                             from 'winston';
 
 /**
  * Sets the bot's activity message after logging in.
  *
- * @param client the Discord client (the bot)
  * @returns {Promise<void>} an empty Promise
  */
-exports.run = async (client) => {
+exports.run = async () => {
     try {
-        log.info(`${client.user.username} has come online. Ready to serve in ${client.channels.size} channels on ${client.guilds.size} servers, for a total of ${client.users.size} users.`);
+        log.info(`${config.client.user.username} has come online. Ready to serve in ${config.client.channels.size} channels on ${config.client.guilds.size} servers, for a total of ${config.client.users.size} users.`);
 
-        await client.user.setActivity(`${process.env.PREFIX} commands`, {type: "LISTENING"});
+        await config.client.user.setActivity(`${process.env.PREFIX} commands`, {type: "LISTENING"});
 
-        for (let guild of client.guilds.array()) {
+        for (let guild of config.client.guilds.array()) {
             let smangleLounge = guild.channels.find(channel => channel.name === 'smangle-lounge');
 
             if (!smangleLounge) {

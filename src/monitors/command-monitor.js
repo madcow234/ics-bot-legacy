@@ -5,12 +5,11 @@ import log               from 'winston';
 /**
  * Executes the proper command requested by the supplied message.
  *
- * @param client the Discord client (the bot)
  * @param message the command message
  * @param args a list of any arguments passed with the command
  * @returns {Promise<void>} an empty Promise
  */
-exports.run = async (client, message, args) => {
+exports.run = async (message, args) => {
     try {
         // If the command does not contain any arguments, send an error message and return
         if (args.length === 0) {
@@ -37,7 +36,7 @@ exports.run = async (client, message, args) => {
 
         // Execute the proper command file
         let commandFile = require(`../commands/${args[0]}.js`);
-        await commandFile.run(client, message, args);
+        await commandFile.run(message, args);
 
     } catch (err) {
         log.error(`[/monitors/commands-monitor.js] ${err}`);

@@ -1,6 +1,6 @@
 import { initLogger } from './logging';
 import { loadEvents } from '../events';
-import { setClient }  from '../templates/embed';
+import { config }     from '../conf/config';
 import Discord        from 'discord.js';
 
 /**
@@ -23,10 +23,10 @@ exports.initApplication = async () => {
 
         // Set the client for new message embed templates
         // This is simply so we don't have to constantly pass the client when using them
-        await setClient(client);
+        config.client = client;
 
-        // Register events with the client
-        await loadEvents(client);
+        // Loads all of the events in the events directory
+        await loadEvents();
 
         // Get the bot's access token
         const BOT_TOKEN = process.env.BOT_TOKEN;

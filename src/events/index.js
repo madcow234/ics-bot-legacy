@@ -1,13 +1,13 @@
 import { readdirSync } from 'fs';
+import { config }      from '../conf/config';
 import log             from 'winston';
 
 /**
  * Reads the events directory and creates an event listener for each of the files.
  *
- * @param client the Discord client (the bot)
  * @returns {Promise<void>} an empty Promise
  */
-exports.loadEvents = async (client) => {
+exports.loadEvents = async () => {
     try {
         // Read the files in this directory
         let eventFiles = await readdirSync(__dirname);
@@ -27,7 +27,7 @@ exports.loadEvents = async (client) => {
             let eventName = file.split(".")[0];
 
             // Creates the event listener as an async function that awaits the return of the run function in each event file
-            client.on(eventName, async (...args) => await eventFilename.run(client, ...args));
+            config.client.on(eventName, async (...args) => await eventFilename.run(...args));
         }
 
     } catch (err) {
