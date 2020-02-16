@@ -1,5 +1,6 @@
 //import { newClientReadyEmbed } from '../templates/embed.js';
-import log from 'winston';
+import { newCreateSmangleLoungeEmbed } from '../templates/embed';
+import log                             from 'winston';
 
 /**
  * Sets the bot's activity message after logging in.
@@ -12,6 +13,18 @@ exports.run = async (client) => {
         log.info(`${client.user.username} has come online. Ready to serve in ${client.channels.size} channels on ${client.guilds.size} servers, for a total of ${client.users.size} users.`);
 
         await client.user.setActivity(`${process.env.PREFIX} commands`, {type: "LISTENING"});
+
+        for (let guild of client.guilds.array()) {
+            let smangleLounge = guild.channels.find(channel => channel.name === 'smangle-lounge');
+
+            if (!smangleLounge) {
+                smangleLounge = await guild.createChannel('smangle-lounge', {
+                    type: 'text',
+                    reason: 'Everyone needs a place to smangle.'
+                });
+                await smangleLounge.send(newCreateSmangleLoungeEmbed());
+            }
+        }
 
         // THE FOLLOWING CODE IS COMMENTED BECAUSE HEROKU RESTARTS EVERY 24 HOURS
 
