@@ -56,6 +56,6 @@ exports.executeCountdown = async (message, historyDescription) => {
         await message.channel.send(newCountdownHistoryEmbed(historyDescription));
 
     } catch (err) {
-        log.error(`[/templates/countdown.js] ${err.message}`);
+        log.error(`[/templates/countdown.js] ${err}`);
     }
 };

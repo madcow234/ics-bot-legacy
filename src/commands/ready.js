@@ -203,6 +203,6 @@ exports.run = async (client, message) => {
         }
 
     } catch (err) {
-        log.error(`[/commands/ready.js] ${err.message}`);
+        log.error(`[/commands/ready.js] ${err}`);
     }
 };

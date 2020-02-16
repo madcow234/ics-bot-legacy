@@ -6,6 +6,6 @@ exports.run = async (client, message) => {
         await executeCountdown(message, `An instant countdown successfully completed.`);
 
     } catch (err) {
-        log.error(`[/commands/now.js] ${err.message}`);
+        log.error(`[/commands/now.js] ${err}`);
     }
 };

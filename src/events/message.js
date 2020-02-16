@@ -25,6 +25,6 @@ exports.run = async (client, message) => {
         await run(client, message, args.slice(1));
 
     } catch (err) {
-        log.error(`[/events/message.js] ${err.message}`);
+        log.error(`[/events/message.js] ${err}`);
     }
 };

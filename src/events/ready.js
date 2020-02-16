@@ -24,6 +24,6 @@ exports.run = async (client) => {
         // generalChannel.send(newClientReadyEmbed());
 
     } catch (err) {
-        log.error(`[/events/ready.js] ${err.message}`);
+        log.error(`[/events/ready.js] ${err}`);
     }
 };
