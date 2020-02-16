@@ -17,7 +17,7 @@ exports.getCommands = async () => {
         // Create a Discord event listener for each file in this directory
         for (let file of commandFiles) {
             // Skip this file because it is not an event
-            if (file === 'index.js') return;
+            if (file === 'index.js') continue;
 
             let commandName = file.split(".")[0];
             commandsArray.push(commandName);

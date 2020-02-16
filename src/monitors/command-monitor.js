@@ -29,6 +29,6 @@ exports.run = async(client, message, args) => {
         return await commandFile.run(client, message, args);
 
     } catch (err) {
-        log.error(`[/monitors/commands-monitor.js] ${err.message}`);
+        log.error(`[/monitors/commands-monitor.js] ${err}`);
     }
 };
