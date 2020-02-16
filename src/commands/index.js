@@ -1,6 +1,11 @@
 import { readdirSync } from 'fs';
 import log             from 'winston';
 
+/**
+ * Reads the commands directory and returns a list of valid command names.
+ *
+ * @returns {Promise<[String]>} an list of valid command names
+ */
 exports.getCommands = async () => {
     try {
         let commandsArray = [];

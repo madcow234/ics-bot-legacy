@@ -4,6 +4,13 @@ import { sleep }                    from '../utils/timer';
 import messageConstants             from '../../resources/message-constants';
 import log                          from "winston";
 
+/**
+ * Executes a timed countdown.
+ *
+ * @param message the message that requested the countdown
+ * @param historyDescription a description of the events that led to the countdown
+ * @returns {Promise<void>} an empty Promise
+ */
 exports.executeCountdown = async (message, historyDescription) => {
     try {
         let stepNums = ["ONE", "TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE"];

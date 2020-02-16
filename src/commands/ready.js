@@ -6,6 +6,13 @@ import { sleep }                   from '../utils/timer';
 import messageConstants            from '../../resources/message-constants'
 import log                         from 'winston';
 
+/**
+ * Creates a ready check lobby, complete with reaction-based menu system, and executes a countdown when everyone is ready.
+ *
+ * @param client the Discord client (the bot)
+ * @param message the message requesting the ready check
+ * @returns {Promise<void>} an empty Promise
+ */
 exports.run = async (client, message) => {
     try {
         // Gather any mentions attached to the ready check initiation message
@@ -13,7 +20,8 @@ exports.run = async (client, message) => {
 
         // If nobody was mentioned, send an error message to the channel and return
         if (mentionsArray.length === 0) {
-            return await message.channel.send(newErrorEmbed(`You can't ready with yourself, ${message.author.username}...mention some friends!`));
+            await message.channel.send(newErrorEmbed(`You can't ready with yourself, ${message.author.username}...mention some friends!`));
+            return;
         }
 
         let readyCheckUsersMap = new Map();
@@ -109,7 +117,7 @@ exports.run = async (client, message) => {
                         await sleep(2100);
                         await hereWeGoMessage.delete();
 
-                        return executeCountdown(message, `A countdown successfully completed for:\n${mentionsOutputArray.join(", ")}`);
+                        await executeCountdown(message, `A countdown successfully completed for:\n${mentionsOutputArray.join(", ")}`);
                     }
 
                     break;

@@ -3,6 +3,11 @@ import { loadEvents } from '../events';
 import { setClient }  from '../templates/embed';
 import Discord        from 'discord.js';
 
+/**
+ * Initializes the application.
+ *
+ * @returns {Promise<void>} an empty Promise
+ */
 exports.initApplication = async () => {
     try {
         // Load a local .env file if in not in production
@@ -21,7 +26,7 @@ exports.initApplication = async () => {
         await setClient(client);
 
         // Register events with the client
-        client = await loadEvents(client);
+        await loadEvents(client);
 
         // Get the bot's access token
         const BOT_TOKEN = process.env.BOT_TOKEN;

@@ -1,6 +1,12 @@
 //import { newClientReadyEmbed } from '../templates/embed.js';
 import log from 'winston';
 
+/**
+ * Sets the bot's activity message after logging in.
+ *
+ * @param client the Discord client (the bot)
+ * @returns {Promise<void>} an empty Promise
+ */
 exports.run = async (client) => {
     try {
         log.info(`${client.user.username} has come online. Ready to serve in ${client.channels.size} channels on ${client.guilds.size} servers, for a total of ${client.users.size} users.`);

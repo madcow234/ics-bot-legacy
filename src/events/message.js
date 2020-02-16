@@ -1,6 +1,13 @@
 import { run } from '../monitors/command-monitor';
 import log     from 'winston';
 
+/**
+ * Listens to all messages and filters which ones should be sent to the command monitor.
+ *
+ * @param client the Discord client (the bot)
+ * @param message the Discord message
+ * @returns {Promise<void>} an empty Promise
+ */
 exports.run = async (client, message) => {
     try {
         // Don't respond to bots...unless I'm the one talking

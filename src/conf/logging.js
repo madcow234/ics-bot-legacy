@@ -1,6 +1,11 @@
 import winston from 'winston';
 import fs      from 'fs';
 
+/**
+ * Initializes the logging framework.
+ *
+ * @returns {Promise<void>} an empty Promise
+ */
 exports.initLogger = async () => {
     const NODE_ENV = process.env.NODE_ENV;
 

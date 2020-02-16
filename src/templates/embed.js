@@ -1,5 +1,16 @@
 import { RichEmbed, Client } from 'discord.js';
 
+/**
+ * Sets the Discord client so it does not have to be passed to every embed template.
+ * THIS IS REQUIRED TO USE TEMPLATES! SET THIS WHEN BOOTSTRAPPING THE APPLICATION!
+ *
+ * @param client the Discord client (the bot)
+ * @returns {Promise<void>} an empty Promise
+ */
+exports.setClient = async (client) => {
+    config.client = client;
+};
+
 const config = {
     client: new Client(),
     images: {
@@ -9,16 +20,6 @@ const config = {
         readyCheckLobbyImageUrl: 'https://cdn.discordapp.com/attachments/160594618478493696/677024135326466048/ics.gif',
         cancelReadyCheckThumbnailUrl: 'https://cdn.discordapp.com/attachments/387026235458584597/390386951557218315/dottedClose.gif'
     }
-};
-
-/**
- * Sets the Discord client so it does not have to be passed to every embed template.
- * THIS IS REQUIRED TO USE TEMPLATES! SET THIS WHEN BOOTSTRAPPING THE APPLICATION!
- *
- * @type {module:"discord.js".Client} a populated Discord {@link Client}
- */
-exports.setClient = async (client) => {
-    config.client = client;
 };
 
 exports.newClientReadyEmbed = () => {
