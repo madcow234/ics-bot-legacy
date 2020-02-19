@@ -48,7 +48,18 @@ exports.newReadyCheckLobbyEmbed = (readyUsers, unreadyUsers) => {
         .setTimestamp()
         .setImage(config.images.readyCheckLobbyImageUrl)
         .addField("**Ready:**", `${readyUsers.length > 0 ? readyUsers.join(", ") : "Waiting..."}`)
-        .addField("**Waiting For:**", `${unreadyUsers.length > 0 ? unreadyUsers.join(", ") : "Everyone is ready!"}`)
+        .addField("**Waiting For:**", `${unreadyUsers.length > 0 ? unreadyUsers.join(", ") : "It's almost time!"}`)
+        .setAuthor(config.client.user.username, config.images.authorIconUrl);
+};
+
+exports.newReadyCheckLobbyWithPreparingEmbed = (readyUsers, preparingUsers, unreadyUsers) => {
+    return new RichEmbed()
+        .setTitle(`Ready Check Lobby`)
+        .setTimestamp()
+        .setImage(config.images.readyCheckLobbyImageUrl)
+        .addField("**Ready:**", `${readyUsers.length > 0 ? readyUsers.join(", ") : "Waiting..."}`)
+        .addField("**Pangling:**", `${preparingUsers.length > 0 ? preparingUsers.join(", ") : "..."}`)
+        .addField("**Waiting For:**", `${unreadyUsers.length > 0 ? unreadyUsers.join(", ") : "It's almost time!"}`)
         .setAuthor(config.client.user.username, config.images.authorIconUrl);
 };
 

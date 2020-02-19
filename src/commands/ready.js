@@ -1,5 +1,6 @@
 import { newErrorEmbed,
          newCancelReadyCheckEmbed,
+         newReadyCheckLobbyWithPreparingEmbed,
          newReadyCheckLobbyEmbed } from '../templates/embed';
 import { executeCountdown }        from '../templates/countdown';
 import { config }                  from '../conf/config';
@@ -28,90 +29,66 @@ exports.run = async (message) => {
         let readyCheckUsersMap = new Map();
         let mentionsOutputArray = [];
         let readyUsers = [];
+        let preparingUsers = [];
         let unreadyUsers = [];
-        let alertMessages = [];
         let messagesToDelete = [];
-        let reactionMenuEmojis = ['🆗', '🔄', '🛑', '🔔'];
+        let reactionMenuEmojis = ['🆗', '*️⃣', '🔄', '🛑', '🔔'];
 
         // Add the user that initiated the ready check to the map first
         readyCheckUsersMap.set(message.author.id, false);
+        mentionsOutputArray.push(`<@!${message.author.id}>`);
+        unreadyUsers.push(`<@!${message.author.id}>`);
 
         // Add the rest of the mentioned users to the map
         for (let user of mentionsArray) {
             // Don't add the user that created the ready check twice
             if (user.id === message.author.id) continue;
             readyCheckUsersMap.set(user.id, false);
+            mentionsOutputArray.push(`<@!${user.id}>`);
+            unreadyUsers.push(`<@!${user.id}>`);
         }
 
-        // Build a mentionsOutputArray by creating mentions for each user in the readyCheckUsersMap
-        for (let [key, value] of readyCheckUsersMap.entries()) {
-            mentionsOutputArray.push(`<@!${key}>`);
-            value === true ? readyUsers.push(`<@!${key}>`) : unreadyUsers.push(`<@!${key}>`)
-        }
-
-        // Send the READY_UP alert, wait for the server to receive and return it, then save it
-        let readyUpMessage = await message.channel.send(messageConstants.ALERT.READY_UP + mentionsOutputArray.join(", "));
-
-        let readyCheckLobbyEmbed = newReadyCheckLobbyEmbed(readyUsers, unreadyUsers);
+        let readyCheckLobbyEmbed = getReadyCheckLobbyEmbed(readyUsers, preparingUsers, unreadyUsers);
 
         // Initialize the readyCheckLobby, wait for the server to receive and return it, then save it
         let readyCheckLobby = await message.channel.send(readyCheckLobbyEmbed);
 
+        // This event will fire every time any user adds any reaction to any message on any server this bot is on
         client.on('messageReactionAdd', async(reaction, user) => {
+            // Immediately return if the reaction is not part of the ready check lobby
             if (reaction.message !== readyCheckLobby) return;
 
+            // Return if this bot added the reaction
             if (user.id === client.user.id) return;
 
-            let users = await reaction.users.array();
-            let invalidUser = false;
-            let invalidReaction = false;
-
-            // Remove reactions from anyone not in the readyUsersMap
-            for (let user of users) {
-                if (user.id === client.user.id) continue;
-
-                if (!readyCheckUsersMap.has(user.id)) {
-                    await reaction.remove(user.id);
-                    invalidUser = true;
-                }
+            // Remove reaction if the user is not in the readyUsersMap or the reaction is not part of the menu
+            if (!readyCheckUsersMap.has(user.id) || !reactionMenuEmojis.includes(reaction.emoji.name)) {
+                await reaction.remove(user.id);
+                return;
             }
-
-            if (invalidUser) return;
-
-            // Remove any reactions that are not part of the menu
-            if (!reactionMenuEmojis.includes(reaction.emoji.name)) {
-                for (let user of users) {
-                    await reaction.remove(user.id);
-                    invalidReaction = true;
-                }
-            }
-
-            if (invalidReaction) return;
 
             switch (reaction.emoji.name) {
                 case '🆗':
-                    readyUsers = [];
-                    unreadyUsers = [];
+                    let asterisk = readyCheckLobby.reactions.get('*️⃣');
+                    await asterisk.remove(user.id);
 
-                    for (let user of users) {
-                        if (user.id === client.user.id) continue;
-                        await readyCheckUsersMap.set(user.id, true);
-                    }
+                    unreadyUsers = unreadyUsers.filter(value => {
+                        return value !== `<@!${user.id}>`;
+                    });
+                    preparingUsers = preparingUsers.filter(value => {
+                        return value !== `<@!${user.id}>`;
+                    });
 
-                    for (let [key, value] of readyCheckUsersMap.entries()) {
-                        value === true ? readyUsers.push(`<@!${key}>`) : unreadyUsers.push(`<@!${key}>`);
-                    }
+                    readyUsers.push(`<@!${user.id}>`);
+                    readyCheckUsersMap.set(user.id, true);
 
-                    readyCheckLobbyEmbed.fields[0].value = `${readyUsers.length > 0 ? readyUsers.join(", ") : "Waiting..."}`;
-                    readyCheckLobbyEmbed.fields[1].value = `${unreadyUsers.length > 0 ? unreadyUsers.join(", "): "Everyone is ready!"}`;
+                    readyCheckLobbyEmbed = getReadyCheckLobbyEmbed(readyUsers, preparingUsers, unreadyUsers);
 
                     readyCheckLobby = await readyCheckLobby.edit(readyCheckLobbyEmbed);
 
                     if (Array.from(readyCheckUsersMap.values()).every(value => value === true)) {
 
-                        let messagesToDelete = alertMessages;
-                        messagesToDelete.push(readyUpMessage);
-                        messagesToDelete.push(readyCheckLobby);
+                        await readyCheckLobby.delete();
                         await message.channel.bulkDelete(messagesToDelete);
 
                         let hereWeGoMessage = await message.channel.send(messageConstants.ALERT.HERE_WE_GO + mentionsOutputArray.join(", "));
@@ -124,27 +101,40 @@ exports.run = async (message) => {
 
                     break;
 
+                case '*️⃣':
+                    let ok = readyCheckLobby.reactions.get('🆗');
+                    await ok.remove(user.id);
+
+                    unreadyUsers = unreadyUsers.filter(value => {
+                        return value !== `<@!${user.id}>`;
+                    });
+                    readyUsers = readyUsers.filter(value => {
+                        return value !== `<@!${user.id}>`;
+                    });
+
+                    preparingUsers.push(`<@!${user.id}>`);
+
+                    readyCheckLobbyEmbed = getReadyCheckLobbyEmbed(readyUsers, preparingUsers, unreadyUsers);
+
+                    readyCheckLobby = await readyCheckLobby.edit(readyCheckLobbyEmbed);
+
+                    break;
+
                 case '🔄':
-                    // Delete all the lobby and alert messages
-                    messagesToDelete = alertMessages;
-                    messagesToDelete.push(readyUpMessage);
-                    messagesToDelete.push(readyCheckLobby);
+                    await readyCheckLobby.delete();
                     await message.channel.bulkDelete(messagesToDelete);
 
                     readyUsers = [];
+                    preparingUsers = [];
                     unreadyUsers = [];
 
                     for (let key of readyCheckUsersMap.keys()) {
                         readyCheckUsersMap.set(key, false);
                     }
 
-                    for (let [key, value] of readyCheckUsersMap.entries()) {
-                        value === true ? readyUsers.push(`<@!${key}>`) : unreadyUsers.push(`<@!${key}>`);
-                    }
+                    unreadyUsers = mentionsOutputArray;
 
-                    readyUpMessage = await message.channel.send(messageConstants.ALERT.READY_UP + mentionsOutputArray.join(", "));
-
-                    readyCheckLobbyEmbed = newReadyCheckLobbyEmbed(readyUsers, unreadyUsers);
+                    readyCheckLobbyEmbed = getReadyCheckLobbyEmbed(readyUsers, preparingUsers, unreadyUsers);
 
                     // Initialize the readyCheckLobby, wait for the server to receive and return it, then save it
                     readyCheckLobby = await message.channel.send(readyCheckLobbyEmbed);
@@ -157,34 +147,15 @@ exports.run = async (message) => {
                     break;
 
                 case '🛑':
-                    let cancelUserList = [];
-                    for (let user of users) {
-                        if (user.id !== client.user.id) {
-                            cancelUserList.push(user.username)
-                        }
-                    }
-
-                    // Delete all the lobby and alert messages
-                    messagesToDelete = alertMessages;
-                    messagesToDelete.push(readyUpMessage);
-                    messagesToDelete.push(readyCheckLobby);
+                    await readyCheckLobby.delete();
                     await message.channel.bulkDelete(messagesToDelete);
-
-                    // Send the cancel ready check embed
-                    await message.channel.send(newCancelReadyCheckEmbed(`${cancelUserList.join(", ")} ${cancelUserList.length === 1 ? 'has' : 'have'} cancelled the countdown.`));
-
+                    await message.channel.send(newCancelReadyCheckEmbed(`The countdown was cancelled by <@!${user.id}>.`));
                     break;
 
                 case '🔔':
-                    let alertMessage = await message.channel.send(messageConstants.ALERT.READY_UP + unreadyUsers.join(", "));
-                    alertMessages.push(alertMessage);
-
-                    for (let user of users) {
-                        if (user.id !== client.user.id) {
-                            await reaction.remove(user.id);
-                        }
-                    }
-
+                    let alertUsers = unreadyUsers.concat(preparingUsers);
+                    messagesToDelete.push(await message.channel.send(messageConstants.ALERT.READY_UP + alertUsers.join(", ")));
+                    await reaction.remove(user.id);
                     break;
             }
         });
@@ -193,18 +164,33 @@ exports.run = async (message) => {
         client.on("messageReactionRemove", async(messageReaction, user) => {
             if (messageReaction.message !== readyCheckLobby) return;
 
-            if (messageReaction.emoji.name === '🆗' && readyCheckUsersMap.has(user.id)) {
-                readyUsers = [];
-                unreadyUsers = [];
+            if (messageReaction.emoji.name === '🆗') {
+                readyUsers = readyUsers.filter(value => {
+                    return value !== `<@!${user.id}>`;
+                });
 
-                readyCheckUsersMap.set(user.id, false);
-
-                for (let [key, value] of readyCheckUsersMap.entries()) {
-                    value === true ? readyUsers.push(`<@!${key}>`) : unreadyUsers.push(`<@!${key}>`)
+                let asterisk = readyCheckLobby.reactions.get('*️⃣');
+                if (!asterisk.users.has(user.id)) {
+                    unreadyUsers.push(`<@!${user.id}>`);
+                    readyCheckUsersMap.set(user.id, false);
                 }
 
-                readyCheckLobbyEmbed.fields[0].value = `${readyUsers.length > 0 ? readyUsers.join(", ") : "Waiting..."}`;
-                readyCheckLobbyEmbed.fields[1].value = `${unreadyUsers.length > 0 ? unreadyUsers.join(", "): "Everyone is ready!"}`;
+                readyCheckLobbyEmbed = getReadyCheckLobbyEmbed(readyUsers, preparingUsers, unreadyUsers);
+
+                readyCheckLobby = await readyCheckLobby.edit(readyCheckLobbyEmbed);
+
+            } else if (messageReaction.emoji.name === '*️⃣') {
+                preparingUsers = preparingUsers.filter(value => {
+                    return value !== `<@!${user.id}>`;
+                });
+
+                let ok = readyCheckLobby.reactions.get('🆗');
+                if (!ok.users.has(user.id)) {
+                    unreadyUsers.push(`<@!${user.id}>`);
+                    readyCheckUsersMap.set(user.id, false);
+                }
+
+                readyCheckLobbyEmbed = getReadyCheckLobbyEmbed(readyUsers, preparingUsers, unreadyUsers);
 
                 readyCheckLobby = await readyCheckLobby.edit(readyCheckLobbyEmbed);
             }
@@ -217,5 +203,13 @@ exports.run = async (message) => {
 
     } catch (err) {
         log.error(`[/commands/ready.js] ${err}`);
+    }
+};
+
+const getReadyCheckLobbyEmbed = (readyUsers, preparingUsers, unreadyUsers) => {
+    if (preparingUsers.length) {
+        return newReadyCheckLobbyWithPreparingEmbed(readyUsers, preparingUsers, unreadyUsers)
+    } else {
+        return newReadyCheckLobbyEmbed(readyUsers, unreadyUsers)
     }
 };
