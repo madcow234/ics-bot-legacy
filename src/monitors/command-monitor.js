@@ -29,13 +29,13 @@ exports.run = async (message, args) => {
         }
 
         // Exit and notify the user if they attempted to issue a command that is not available in the /commands/ folder
-        if (availableCommands.lastIndexOf(args[0]) === -1) {
+        if (availableCommands.lastIndexOf(args[0].toLowerCase()) === -1) {
             await message.channel.send(newErrorEmbed(`I'm sorry, '${args[0]}' is not a valid command.`));
             return;
         }
 
         // Execute the proper command file, passing in the remaining arguments (does not include the prefix or the command)
-        let commandFile = require(`../commands/${args[0]}.js`);
+        let commandFile = require(`../commands/${args[0].toLowerCase()}.js`);
         await commandFile.run(message, args.slice(1));
 
     } catch (err) {

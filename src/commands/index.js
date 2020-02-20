@@ -25,7 +25,7 @@ exports.getCommands = async () => {
             if (file === 'index.js') continue;
 
             let commandName = file.split(".")[0];
-            commandsArray.push(commandName);
+            commandsArray.push(commandName.toLowerCase());
         }
 
         return commandsArray;
