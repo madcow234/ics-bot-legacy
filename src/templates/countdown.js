@@ -2,6 +2,7 @@ import { newCountdownEmbed,
          newCountdownHistoryEmbed } from '../templates/embed';
 import { sleep }                    from '../utils/timer';
 import messageConstants             from '../../resources/message-constants';
+import {config}                     from "../conf/config";
 import log                          from "winston";
 
 /**
@@ -60,7 +61,7 @@ exports.executeCountdown = async (message, historyDescription) => {
 
         // Send the history embed message to the channel
         await sleep(100);
-        await message.channel.send(newCountdownHistoryEmbed(historyDescription));
+        await message.channel.send(newCountdownHistoryEmbed(historyDescription, config.embeds.images.animatedIcsBotThumbnailUrl));
 
     } catch (err) {
         log.error(`[/templates/countdown.js] ${err}`);

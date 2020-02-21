@@ -1,6 +1,5 @@
 import { newErrorEmbed,
-         newCancelReadyCheckEmbed,
-         newReadyCheckLobbyWithPreparingEmbed,
+         newCountdownHistoryEmbed,
          newReadyCheckLobbyEmbed } from '../templates/embed';
 import { executeCountdown }        from '../templates/countdown';
 import { config }                  from '../conf/config';
@@ -26,6 +25,7 @@ exports.run = async (message) => {
         }
 
         let client = config.client;
+        let initiatingUser = message.author.id;
         let readyCheckUsersMap = new Map();
         let mentionsOutputArray = [];
         let readyUsers = [];
@@ -35,21 +35,24 @@ exports.run = async (message) => {
         let reactionMenuEmojis = ['🆗', '*️⃣', '🔄', '🛑', '🔔'];
 
         // Add the user that initiated the ready check to the map first
-        readyCheckUsersMap.set(message.author.id, false);
-        mentionsOutputArray.push(`<@!${message.author.id}>`);
-        unreadyUsers.push(`<@!${message.author.id}>`);
+        readyCheckUsersMap.set(initiatingUser, false);
+        mentionsOutputArray.push(`<@!${initiatingUser}>`);
+        unreadyUsers.push(`<@!${initiatingUser}>`);
 
         // Add the rest of the mentioned users to the map
         for (let user of mentionsArray) {
             // Don't add the user that created the ready check twice
-            if (user.id === message.author.id) continue;
+            if (user.id === initiatingUser) continue;
             readyCheckUsersMap.set(user.id, false);
             mentionsOutputArray.push(`<@!${user.id}>`);
             unreadyUsers.push(`<@!${user.id}>`);
         }
 
-        let readyCheckLobbyEmbed = getReadyCheckLobbyEmbed(readyUsers, preparingUsers, unreadyUsers);
+        await message.channel.send(newCountdownHistoryEmbed(`A ready check lobby was initiated by <@!${initiatingUser}>.`, config.embeds.images.animatedIcsBotThumbnailUrl));
 
+        let readyCheckLobbyEmbed = newReadyCheckLobbyEmbed(initiatingUser, readyUsers, preparingUsers, unreadyUsers);
+
+        await sleep(100);
         // Initialize the readyCheckLobby, wait for the server to receive and return it, then save it
         let readyCheckLobby = await message.channel.send(readyCheckLobbyEmbed);
 
@@ -82,7 +85,7 @@ exports.run = async (message) => {
                     readyUsers.push(`<@!${user.id}>`);
                     readyCheckUsersMap.set(user.id, true);
 
-                    readyCheckLobbyEmbed = getReadyCheckLobbyEmbed(readyUsers, preparingUsers, unreadyUsers);
+                    readyCheckLobbyEmbed = newReadyCheckLobbyEmbed(initiatingUser, readyUsers, preparingUsers, unreadyUsers);
 
                     readyCheckLobby = await readyCheckLobby.edit(readyCheckLobbyEmbed);
 
@@ -96,7 +99,7 @@ exports.run = async (message) => {
                         await sleep(2100);
                         await hereWeGoMessage.delete();
 
-                        await executeCountdown(message, `A countdown successfully completed for:\n${mentionsOutputArray.join(", ")}`);
+                        await executeCountdown(message, `The countdown successfully completed for:\n${mentionsOutputArray.join(", ")}`);
                     }
 
                     break;
@@ -114,7 +117,7 @@ exports.run = async (message) => {
 
                     preparingUsers.push(`<@!${user.id}>`);
 
-                    readyCheckLobbyEmbed = getReadyCheckLobbyEmbed(readyUsers, preparingUsers, unreadyUsers);
+                    readyCheckLobbyEmbed = newReadyCheckLobbyEmbed(initiatingUser, readyUsers, preparingUsers, unreadyUsers);
 
                     readyCheckLobby = await readyCheckLobby.edit(readyCheckLobbyEmbed);
 
@@ -123,6 +126,8 @@ exports.run = async (message) => {
                 case '🔄':
                     await readyCheckLobby.delete();
                     await message.channel.bulkDelete(messagesToDelete);
+
+                    await message.channel.send(newCountdownHistoryEmbed(`The lobby was restarted by <@!${user.id}>.`, config.embeds.images.animatedIcsBotThumbnailUrl));
 
                     readyUsers = [];
                     preparingUsers = [];
@@ -134,8 +139,9 @@ exports.run = async (message) => {
 
                     unreadyUsers = mentionsOutputArray;
 
-                    readyCheckLobbyEmbed = getReadyCheckLobbyEmbed(readyUsers, preparingUsers, unreadyUsers);
+                    readyCheckLobbyEmbed = newReadyCheckLobbyEmbed(initiatingUser, readyUsers, preparingUsers, unreadyUsers);
 
+                    await sleep(100);
                     // Initialize the readyCheckLobby, wait for the server to receive and return it, then save it
                     readyCheckLobby = await message.channel.send(readyCheckLobbyEmbed);
 
@@ -149,7 +155,7 @@ exports.run = async (message) => {
                 case '🛑':
                     await readyCheckLobby.delete();
                     await message.channel.bulkDelete(messagesToDelete);
-                    await message.channel.send(newCancelReadyCheckEmbed(`The countdown was cancelled by <@!${user.id}>.`));
+                    await message.channel.send(newCountdownHistoryEmbed(`The ready check was cancelled by <@!${user.id}>.`, config.embeds.images.cancelReadyCheckThumbnailUrl));
                     break;
 
                 case '🔔':
@@ -175,7 +181,7 @@ exports.run = async (message) => {
                     readyCheckUsersMap.set(user.id, false);
                 }
 
-                readyCheckLobbyEmbed = getReadyCheckLobbyEmbed(readyUsers, preparingUsers, unreadyUsers);
+                readyCheckLobbyEmbed = newReadyCheckLobbyEmbed(initiatingUser, readyUsers, preparingUsers, unreadyUsers);
 
                 readyCheckLobby = await readyCheckLobby.edit(readyCheckLobbyEmbed);
 
@@ -190,7 +196,7 @@ exports.run = async (message) => {
                     readyCheckUsersMap.set(user.id, false);
                 }
 
-                readyCheckLobbyEmbed = getReadyCheckLobbyEmbed(readyUsers, preparingUsers, unreadyUsers);
+                readyCheckLobbyEmbed = newReadyCheckLobbyEmbed(initiatingUser, readyUsers, preparingUsers, unreadyUsers);
 
                 readyCheckLobby = await readyCheckLobby.edit(readyCheckLobbyEmbed);
             }
@@ -203,13 +209,5 @@ exports.run = async (message) => {
 
     } catch (err) {
         log.error(`[/commands/ready.js] ${err}`);
-    }
-};
-
-const getReadyCheckLobbyEmbed = (readyUsers, preparingUsers, unreadyUsers) => {
-    if (preparingUsers.length) {
-        return newReadyCheckLobbyWithPreparingEmbed(readyUsers, preparingUsers, unreadyUsers)
-    } else {
-        return newReadyCheckLobbyEmbed(readyUsers, unreadyUsers)
     }
 };
