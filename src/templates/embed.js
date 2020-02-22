@@ -37,7 +37,7 @@ exports.newCountdownHistoryEmbed = (historyDescription, thumbnailUrl) => {
         .setThumbnail(thumbnailUrl)
 };
 
-exports.newReadyCheckLobbyEmbed = (initiatingUser, readyUsers, preparingUsers, unreadyUsers) => {
+exports.newReadyCheckLobbyEmbed = (readyUsers, preparingUsers, unreadyUsers) => {
     let readyCheckLobbyEmbed = new RichEmbed()
         .setTitle(`Ready Check Lobby`)
         .setTimestamp()
@@ -48,11 +48,11 @@ exports.newReadyCheckLobbyEmbed = (initiatingUser, readyUsers, preparingUsers, u
     }
 
     if (preparingUsers.length > 0) {
-        readyCheckLobbyEmbed.addField("**Pangling:**", preparingUsers.join(", "))
+        readyCheckLobbyEmbed.addField("**Almost there:**", preparingUsers.join(", "))
     }
 
     if (unreadyUsers.length > 0) {
-        readyCheckLobbyEmbed.addField("**Waiting For:**", unreadyUsers.join(", "))
+        readyCheckLobbyEmbed.addField("**Needs to ready up:**", unreadyUsers.join(", "))
     }
 
     return readyCheckLobbyEmbed;
