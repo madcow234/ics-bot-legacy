@@ -50,9 +50,10 @@ exports.run = async (message) => {
             unreadyUsers.push(`<@!${user.id}>`);
         }
 
+        let participants = mentionsOutputArray.length > 1 ? mentionsOutputArray.splice(1).join(', ') : `<@!${initiatingUser}>`;
         // Send a history report stating the ready check lobby is initiated
         await message.channel.send(
-            newCountdownHistoryEmbed(`A ready check lobby was initiated by <@!${initiatingUser}>.`, config.embeds.images.animatedIcsBotThumbnailUrl)
+            newCountdownHistoryEmbed(`A ready check lobby was initiated by <@!${initiatingUser}>.\n\nParticipants: ${participants}`, config.embeds.images.animatedIcsBotThumbnailUrl)
         );
 
         await sleep(100);
@@ -98,7 +99,7 @@ exports.run = async (message) => {
                         await sleep(2100);
                         await hereWeGoMessage.delete();
 
-                        await executeCountdown(message, `The countdown successfully completed for:\n${mentionsOutputArray.join(", ")}`);
+                        await executeCountdown(message.channel, `The countdown successfully completed for:\n${mentionsOutputArray.join(", ")}`);
                     }
 
                     break;
@@ -131,7 +132,7 @@ exports.run = async (message) => {
                             await sleep(2100);
                             await hereWeGoMessage.delete();
 
-                            await executeCountdown(message, `The countdown successfully completed for:\n${mentionsOutputArray.join(", ")}`);
+                            await executeCountdown(message.channel, `The countdown successfully completed for:\n${mentionsOutputArray.join(", ")}`);
 
                         } else {
                             await readyCheckLobby.reactions.get('🆗').remove(user.id);
@@ -147,7 +148,7 @@ exports.run = async (message) => {
                         await readyCheckLobby.delete();
                         await message.channel.bulkDelete(messagesToDelete);
                         await message.channel.send(
-                            newCountdownHistoryEmbed(`The ready check was cancelled due to a lack of participants.`, config.embeds.images.cancelReadyCheckThumbnailUrl)
+                            newCountdownHistoryEmbed(`The ready check was cancelled because everyone left the lobby.`, config.embeds.images.cancelReadyCheckThumbnailUrl)
                         );
                     }
 

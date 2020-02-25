@@ -8,11 +8,11 @@ import log                          from "winston";
 /**
  * Executes a timed countdown.
  *
- * @param message the message that requested the countdown
+ * @param channel the channel where the countdown should be executed
  * @param historyDescription a description of the events that led to the countdown
  * @returns {Promise<void>} an empty Promise
  */
-exports.executeCountdown = async (message, historyDescription) => {
+exports.executeCountdown = async (channel, historyDescription) => {
     try {
         let stepNums = ["ONE", "TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE"];
 
@@ -20,7 +20,7 @@ exports.executeCountdown = async (message, historyDescription) => {
         let countdownEmbed = newCountdownEmbed(messageConstants.IMAGES.ONE);
 
         // Send the countdown embed to the channel and save it
-        let countdownEmbedMessage = await message.channel.send(countdownEmbed);
+        let countdownEmbedMessage = await channel.send(countdownEmbed);
 
         let description = "";
         for (const step of stepNums) {
@@ -61,7 +61,7 @@ exports.executeCountdown = async (message, historyDescription) => {
 
         // Send the history embed message to the channel
         await sleep(100);
-        await message.channel.send(newCountdownHistoryEmbed(historyDescription, config.embeds.images.animatedIcsBotThumbnailUrl));
+        await channel.send(newCountdownHistoryEmbed(historyDescription, config.embeds.images.animatedIcsBotThumbnailUrl));
 
     } catch (err) {
         log.error(`[/templates/countdown.js] ${err}`);
