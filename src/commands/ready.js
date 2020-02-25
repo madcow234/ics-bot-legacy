@@ -53,7 +53,7 @@ exports.run = async (message) => {
         let participants = mentionsOutputArray.length > 1 ? mentionsOutputArray.slice(1).join(', ') : `<@!${initiatingUser}>`;
         // Send a history report stating the ready check lobby is initiated
         await message.channel.send(
-            newCountdownHistoryEmbed(`A ready check lobby was initiated by <@!${initiatingUser}>.\n\nParticipants: ${participants}`, config.embeds.images.animatedIcsBotThumbnailUrl)
+            newCountdownHistoryEmbed(`A ready check lobby was initiated by <@!${initiatingUser}>.\n\nOther participants: ${participants}`, config.embeds.images.animatedIcsBotThumbnailUrl)
         );
 
         await sleep(100);
