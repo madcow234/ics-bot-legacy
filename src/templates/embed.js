@@ -37,22 +37,36 @@ exports.newCountdownHistoryEmbed = (historyDescription, thumbnailUrl) => {
         .setThumbnail(thumbnailUrl)
 };
 
-exports.newReadyCheckLobbyEmbed = (readyUsers, preparingUsers, unreadyUsers) => {
+exports.newReadyCheckLobbyEmbed = (userStateMap) => {
     let readyCheckLobbyEmbed = new RichEmbed()
         .setTitle(`Ready Check Lobby`)
         .setTimestamp()
         .setImage(config.embeds.images.readyCheckLobbyImageUrl);
+
+    let readyUsers = [];
+    let preparingUsers = [];
+    let inactiveUsers = [];
+
+    for (let [user, state] of userStateMap) {
+        if (state === config.enums.userStates.READY) {
+            readyUsers.push(user);
+        } else if (state === config.enums.userStates.PREPARING) {
+            preparingUsers.push(user);
+        } else if (state === config.enums.userStates.INACTIVE) {
+            inactiveUsers.push(user);
+        }
+    }
 
     if (readyUsers.length > 0) {
         readyCheckLobbyEmbed.addField("**Ready:**", readyUsers.join(", "))
     }
 
     if (preparingUsers.length > 0) {
-        readyCheckLobbyEmbed.addField("**Almost there:**", preparingUsers.join(", "))
+        readyCheckLobbyEmbed.addField("**Almost ready:**", preparingUsers.join(", "))
     }
 
-    if (unreadyUsers.length > 0) {
-        readyCheckLobbyEmbed.addField("**Needs to ready up:**", unreadyUsers.join(", "))
+    if (inactiveUsers.length > 0) {
+        readyCheckLobbyEmbed.addField("**Needs to ready up:**", inactiveUsers.join(", "))
     }
 
     return readyCheckLobbyEmbed;

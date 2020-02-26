@@ -13,5 +13,12 @@ exports.config = {
             readyCheckLobbyImageUrl: 'https://cdn.discordapp.com/attachments/160594618478493696/677024135326466048/ics.gif',
             cancelReadyCheckThumbnailUrl: 'https://cdn.discordapp.com/attachments/160594618478493696/679521139214647350/cancelled.gif'
         }
+    },
+    enums: {
+        userStates: {
+            INACTIVE: 'INACTIVE',
+            PREPARING: 'PREPARING',
+            READY: 'READY'
+        }
     }
 };
