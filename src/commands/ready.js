@@ -20,14 +20,16 @@ exports.run = async (message, args) => {
         let client = config.client;
         let mentionsArray = [];
 
+        // If the --crew argument is used, gather the configured crew users
         if (args.includes('--crew')) {
             for (let crewId of config.crew) {
                 mentionsArray.push(await client.fetchUser(crewId));
             }
+        }
 
-        } else {
-            // Gather any mentions attached to the ready check initiation message
-            mentionsArray = message.mentions.users.array();
+        // Gather any mentions attached to the ready check initiation message
+        for (let user of message.mentions.users.array()) {
+            mentionsArray.push(user);
         }
 
         // If nobody was mentioned, send an error message to the channel and return
@@ -43,6 +45,7 @@ exports.run = async (message, args) => {
         let messagesToDelete = [];
 
         // Add the user that initiated the ready check to the map first
+        // This allows the initiating user to not have to mention themselves
         userStateMap.set(`<@!${initiatingUser}>`, config.enums.userStates.INACTIVE);
 
         // Add the rest of the mentioned users to the map
