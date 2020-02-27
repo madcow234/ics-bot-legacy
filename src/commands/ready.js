@@ -46,7 +46,7 @@ exports.run = async (message) => {
 
         // Send a history report stating the ready check lobby is initiated
         await message.channel.send(
-            newCountdownHistoryEmbed(`A ready check lobby was initiated by <@!${initiatingUser}>.\n\nOther participants: ${participants}`, config.embeds.images.animatedIcsBotThumbnailUrl)
+            newCountdownHistoryEmbed(`A ready check lobby was initiated by <@!${initiatingUser}>.\n\nOther participants: ${participants}`, config.embeds.images.initiateReadyCheckThumbnailUrl)
         );
 
         await sleep(100);
@@ -109,7 +109,7 @@ exports.run = async (message) => {
                         await readyCheckLobby.delete();
                         await message.channel.bulkDelete(messagesToDelete);
                         await message.channel.send(
-                            newCountdownHistoryEmbed(`The ready check was cancelled because everyone left the lobby.`, config.embeds.images.cancelReadyCheckThumbnailUrl)
+                            newCountdownHistoryEmbed(`The ready check was cancelled because everyone left the lobby.`, config.embeds.images.noParticipantsReadyCheckThumbnailUrl)
                         );
                     }
 
@@ -120,7 +120,7 @@ exports.run = async (message) => {
                     await message.channel.bulkDelete(messagesToDelete);
 
                     await message.channel.send(
-                        newCountdownHistoryEmbed(`The lobby was restarted by <@!${user.id}>.`, config.embeds.images.animatedIcsBotThumbnailUrl)
+                        newCountdownHistoryEmbed(`The lobby was restarted by <@!${user.id}>.`, config.embeds.images.restartReadyCheckThumbnailUrl)
                     );
 
                     for (let key of userStateMap.keys()) {

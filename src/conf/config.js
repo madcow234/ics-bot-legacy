@@ -7,11 +7,14 @@ exports.config = {
     client: new Client(),
     embeds: {
         images: {
-            authorIconUrl: 'https://cdn.discordapp.com/attachments/160594618478493696/673758112225820672/icsbot1.png',
-            errorThumbnailUrl: 'https://cdn.discordapp.com/attachments/387026235458584597/390386949631901706/flickerError.gif',
-            animatedIcsBotThumbnailUrl: 'https://cdn.discordapp.com/attachments/160821484770557953/673758923446157322/icsbotanimated.gif',
-            readyCheckLobbyImageUrl: 'https://cdn.discordapp.com/attachments/160594618478493696/677024135326466048/ics.gif',
-            cancelReadyCheckThumbnailUrl: 'https://cdn.discordapp.com/attachments/160594618478493696/679521139214647350/cancelled.gif'
+            authorIconUrl: 'https://cdn.discordapp.com/attachments/673213456526082053/682402957219725332/icsbot_static.png',
+            animatedIcsBotThumbnailUrl: 'https://cdn.discordapp.com/attachments/673213456526082053/682402969274023967/icsbot_animated.gif',
+            errorThumbnailUrl: 'https://cdn.discordapp.com/attachments/673213456526082053/682402598724436032/general_error.gif',
+            readyCheckLobbyImageUrl: 'https://cdn.discordapp.com/attachments/673213456526082053/682403303245742120/flashing_alert_ics.gif',
+            initiateReadyCheckThumbnailUrl: 'https://cdn.discordapp.com/attachments/673213456526082053/682405146797277214/initiate_ready_check.gif',
+            restartReadyCheckThumbnailUrl: 'https://cdn.discordapp.com/attachments/673213456526082053/682401952595705891/restart_ready_check.gif',
+            cancelReadyCheckThumbnailUrl: 'https://cdn.discordapp.com/attachments/673213456526082053/682402341349228574/cancel_ready_check.gif',
+            noParticipantsReadyCheckThumbnailUrl: 'https://cdn.discordapp.com/attachments/673213456526082053/682406964205977648/no_participants_ready_check.gif'
         }
     },
     enums: {
