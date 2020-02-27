@@ -21,7 +21,7 @@ exports.run = async (message, args) => {
         let mentionsArray = [];
 
         // If the --crew argument is used, gather the configured crew users
-        if (args.includes('--crew')) {
+        if (args.includes('-c') || args.includes('--crew')) {
             for (let crewId of config.crew) {
                 mentionsArray.push(await client.fetchUser(crewId));
             }
