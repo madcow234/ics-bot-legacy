@@ -29,7 +29,9 @@ exports.run = async (message, args) => {
 
         // Gather any mentions attached to the ready check initiation message
         for (let user of message.mentions.users.array()) {
-            mentionsArray.push(user);
+            if (!mentionsArray.includes(user)) {
+                mentionsArray.push(user);
+            }
         }
 
         // If nobody was mentioned, send an error message to the channel and return
