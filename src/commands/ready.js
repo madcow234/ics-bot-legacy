@@ -11,26 +11,36 @@ import log                         from 'winston';
  * Creates a ready check lobby, complete with reaction-based menu system, and executes a countdown when everyone is ready.
  *
  * @param message the message requesting the ready check
+ * @param args a list of any arguments passed with the command
  * @returns {Promise<void>} an empty Promise
  */
-exports.run = async (message) => {
+exports.run = async (message, args) => {
     try {
-        // Gather any mentions attached to the ready check initiation message
-        let mentionsArray = message.mentions.users.array();
+        let reactionMenuEmojis = ['🆗', '*️⃣', '🔔', '🔄', '❌', '🛑'];
+        let client = config.client;
+        let mentionsArray = [];
+
+        if (args.includes('--crew')) {
+            for (let crewId of config.crew) {
+                mentionsArray.push(await client.fetchUser(crewId));
+            }
+
+        } else {
+            // Gather any mentions attached to the ready check initiation message
+            mentionsArray = message.mentions.users.array();
+        }
 
         // If nobody was mentioned, send an error message to the channel and return
         if (mentionsArray.length === 0) {
             await message.channel.send(
-                newErrorEmbed(`You can't ready with yourself, ${message.author.username}...mention some friends!`)
+                newErrorEmbed(`You can't ready with yourself, <@!${message.author.id}>...mention some friends!`)
             );
             return;
         }
 
-        let client = config.client;
         let initiatingUser = message.author.id;
         let userStateMap = new Map();
         let messagesToDelete = [];
-        let reactionMenuEmojis = ['🆗', '*️⃣', '🔔', '🔄', '❌', '🛑'];
 
         // Add the user that initiated the ready check to the map first
         userStateMap.set(`<@!${initiatingUser}>`, config.enums.userStates.INACTIVE);

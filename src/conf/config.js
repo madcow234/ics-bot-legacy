@@ -23,5 +23,6 @@ exports.config = {
             PREPARING: 'PREPARING',
             READY: 'READY'
         }
-    }
+    },
+    crew: ['160457026793766912', '160141834931142657', '351877350004228097']
 };

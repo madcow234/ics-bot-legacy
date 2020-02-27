@@ -13,7 +13,7 @@ exports.run = async (message, args) => {
     try {
         // If the command does not contain any arguments, send an error message and return
         if (args.length === 0) {
-            await message.channel.send(newErrorEmbed(`Hi ${message.author.username}! I'm doing well, but I can't help you if you don't issue a command.`));
+            await message.channel.send(newErrorEmbed(`Hi <@!${message.author.id}>! I'm doing well, but I can't help you if you don't issue a command.`));
             return;
         }
 
@@ -30,7 +30,7 @@ exports.run = async (message, args) => {
 
         // Exit and notify the user if they attempted to issue a command that is not available in the /commands/ folder
         if (availableCommands.lastIndexOf(args[0].toLowerCase()) === -1) {
-            await message.channel.send(newErrorEmbed(`I'm sorry, '${args[0]}' is not a valid command.`));
+            await message.channel.send(newErrorEmbed(`I'm sorry <@!${message.author.id}>, '${args[0]}' is not a valid command.`));
             return;
         }
 
