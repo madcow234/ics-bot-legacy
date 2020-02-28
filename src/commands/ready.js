@@ -124,7 +124,7 @@ exports.run = async (message, args) => {
                         await readyCheckLobby.delete();
                         await message.channel.bulkDelete(messagesToDelete);
                         await message.channel.send(
-                            newCountdownHistoryEmbed(`The ready check was cancelled because everyone left the lobby.`, config.embeds.images.noParticipantsReadyCheckThumbnailUrl)
+                            newCountdownHistoryEmbed(`The ready check was cancelled because everyone left the lobby.`, config.embeds.images.noParticipantsReadyCheckThumbnailUrl, 'DARK_RED')
                         );
                     }
 
@@ -135,7 +135,7 @@ exports.run = async (message, args) => {
                     await message.channel.bulkDelete(messagesToDelete);
 
                     await message.channel.send(
-                        newCountdownHistoryEmbed(`The lobby was restarted by <@!${user.id}>.`, config.embeds.images.restartReadyCheckThumbnailUrl)
+                        newCountdownHistoryEmbed(`The lobby was restarted by <@!${user.id}>.`, config.embeds.images.restartReadyCheckThumbnailUrl, 'DARK_ORANGE')
                     );
 
                     for (let key of userStateMap.keys()) {
@@ -157,7 +157,7 @@ exports.run = async (message, args) => {
                     await readyCheckLobby.delete();
                     await message.channel.bulkDelete(messagesToDelete);
                     await message.channel.send(
-                        newCountdownHistoryEmbed(`The ready check was cancelled by <@!${user.id}>.`, config.embeds.images.cancelReadyCheckThumbnailUrl)
+                        newCountdownHistoryEmbed(`The ready check was cancelled by <@!${user.id}>.`, config.embeds.images.cancelReadyCheckThumbnailUrl, 'DARK_RED')
                     );
                     break;
 

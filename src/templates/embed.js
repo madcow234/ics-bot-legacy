@@ -5,6 +5,7 @@ exports.newClientReadyEmbed = () => {
     return new RichEmbed()
         .setTimestamp()
         .setDescription(`Grab your bangle and get ready to smangle!`)
+        .setColor('GREEN')
 };
 
 exports.newCreateSmangleLoungeEmbed = () => {
@@ -13,6 +14,7 @@ exports.newCreateSmangleLoungeEmbed = () => {
         .setTimestamp()
         .setThumbnail(config.embeds.images.animatedIcsBotThumbnailUrl)
         .setDescription(`I will listen for \`${process.env.PREFIX}\` commands everywhere, but here is a dedicated place.\n\n**Everyone needs a place to smangle!**`)
+        .setColor('GREEN')
 };
 
 exports.newErrorEmbed = (errorDescription) => {
@@ -21,27 +23,31 @@ exports.newErrorEmbed = (errorDescription) => {
         .setTimestamp()
         .setDescription(errorDescription)
         .setThumbnail(config.embeds.images.errorThumbnailUrl)
+        .setColor('RED')
 };
 
 exports.newCountdownEmbed = (image) => {
     return new RichEmbed()
         .setImage(image)
         .setTimestamp()
+        .setColor('GREEN')
 };
 
-exports.newCountdownHistoryEmbed = (historyDescription, thumbnailUrl) => {
+exports.newCountdownHistoryEmbed = (historyDescription, thumbnailUrl, color = 'GREEN') => {
     return new RichEmbed()
         .setTitle(`ICS History Report`)
         .setTimestamp()
         .setDescription(historyDescription)
         .setThumbnail(thumbnailUrl)
+        .setColor(color)
 };
 
 exports.newReadyCheckLobbyEmbed = (userStateMap) => {
     let readyCheckLobbyEmbed = new RichEmbed()
         .setTitle(`Ready Check Lobby`)
         .setTimestamp()
-        .setImage(config.embeds.images.readyCheckLobbyImageUrl);
+        .setImage(config.embeds.images.readyCheckLobbyImageUrl)
+        .setColor('GREEN');
 
     let readyUsers = [];
     let preparingUsers = [];
