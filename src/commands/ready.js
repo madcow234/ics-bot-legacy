@@ -34,6 +34,15 @@ exports.run = async (message, args) => {
             }
         }
 
+        // Gather any roles attached to the ready check initiation message
+        for (let role of message.mentions.roles.array()) {
+            for (let member of role.members.array()) {
+                if (!mentionsArray.includes(member.user)) {
+                    mentionsArray.push(member.user);
+                }
+            }
+        }
+
         // If nobody was mentioned, send an error message to the channel and return
         if (mentionsArray.length === 0) {
             await message.channel.send(
