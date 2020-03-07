@@ -1,15 +1,15 @@
-import { RichEmbed } from 'discord.js';
+import { MessageEmbed } from 'discord.js';
 import { config }    from '../conf/config';
 
 exports.newClientReadyEmbed = () => {
-    return new RichEmbed()
+    return new MessageEmbed()
         .setTimestamp()
         .setDescription(`Grab your bangle and get ready to smangle!`)
         .setColor('GREEN')
 };
 
 exports.newCreateSmangleLoungeEmbed = () => {
-    return new RichEmbed()
+    return new MessageEmbed()
         .setTitle('Welcome to the Smangle Lounge')
         .setTimestamp()
         .setThumbnail(config.embeds.images.animatedIcsBotThumbnailUrl)
@@ -18,7 +18,7 @@ exports.newCreateSmangleLoungeEmbed = () => {
 };
 
 exports.newErrorEmbed = (errorDescription) => {
-    return new RichEmbed()
+    return new MessageEmbed()
         .setTitle(`Error Report`)
         .setTimestamp()
         .setDescription(errorDescription)
@@ -27,14 +27,14 @@ exports.newErrorEmbed = (errorDescription) => {
 };
 
 exports.newCountdownEmbed = (image) => {
-    return new RichEmbed()
+    return new MessageEmbed()
         .setImage(image)
         .setTimestamp()
         .setColor('GREEN')
 };
 
 exports.newCountdownHistoryEmbed = (historyDescription, thumbnailUrl, color = 'GREEN') => {
-    return new RichEmbed()
+    return new MessageEmbed()
         .setTitle(`ICS History Report`)
         .setTimestamp()
         .setDescription(historyDescription)
@@ -43,7 +43,7 @@ exports.newCountdownHistoryEmbed = (historyDescription, thumbnailUrl, color = 'G
 };
 
 exports.newReadyCheckLobbyEmbed = (userStateMap) => {
-    let readyCheckLobbyEmbed = new RichEmbed()
+    let readyCheckLobbyEmbed = new MessageEmbed()
         .setTitle(`Ready Check Lobby`)
         .setTimestamp()
         .setImage(config.embeds.images.readyCheckLobbyImageUrl)

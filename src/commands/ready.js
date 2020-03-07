@@ -23,7 +23,7 @@ exports.run = async (message, args) => {
         // If the --crew argument is used, gather the configured crew users
         if (args.includes('-c') || args.includes('--crew')) {
             for (let crewId of config.crew) {
-                mentionsArray.push(await client.fetchUser(crewId));
+                mentionsArray.push(await client.users.fetch(crewId));
             }
         }
 
@@ -80,20 +80,20 @@ exports.run = async (message, args) => {
         // This event will fire every time any user adds any reaction to any message on any server this bot is on
         client.on('messageReactionAdd', async(reaction, user) => {
             // Immediately return if the reaction is not part of the ready check lobby
-            if (reaction.message !== readyCheckLobby) return;
+            if (reaction.message.id !== readyCheckLobby.id) return;
 
             // Return if this bot added the reaction
             if (user.id === client.user.id) return;
 
             // Remove reaction if the user is not in the readyUsersMap or the reaction is not part of the menu
             if (!userStateMap.has(`<@!${user.id}>`) || !reactionMenuEmojis.includes(reaction.emoji.name)) {
-                await reaction.remove(user.id);
+                await reaction.users.remove(user.id);
                 return;
             }
 
             switch (reaction.emoji.name) {
                 case '🆗':
-                    await readyCheckLobby.reactions.get('*️⃣').remove(user.id);
+                    await readyCheckLobby.reactions.cache.get('*️⃣').users.remove(user.id);
 
                     userStateMap.set(`<@!${user.id}>`, config.enums.userStates.READY);
 
@@ -106,7 +106,7 @@ exports.run = async (message, args) => {
                     break;
 
                 case '*️⃣':
-                    await readyCheckLobby.reactions.get('🆗').remove(user.id);
+                    await readyCheckLobby.reactions.cache.get('🆗').users.remove(user.id);
 
                     userStateMap.set(`<@!${user.id}>`, config.enums.userStates.PREPARING);
 
@@ -122,9 +122,9 @@ exports.run = async (message, args) => {
                             await startCountdown(readyCheckLobby, userStateMap, messagesToDelete);
 
                         } else {
-                            await readyCheckLobby.reactions.get('🆗').remove(user.id);
-                            await readyCheckLobby.reactions.get('*️⃣').remove(user.id);
-                            await readyCheckLobby.reactions.get('❌').remove(user.id);
+                            await readyCheckLobby.reactions.cache.get('🆗').users.remove(user.id);
+                            await readyCheckLobby.reactions.cache.get('*️⃣').users.remove(user.id);
+                            await readyCheckLobby.reactions.cache.get('❌').users.remove(user.id);
 
                             readyCheckLobby = await readyCheckLobby.edit(newReadyCheckLobbyEmbed(userStateMap));
                         }
@@ -180,21 +180,35 @@ exports.run = async (message, args) => {
                     messagesToDelete.push(
                         await message.channel.send(messageConstants.ALERT.READY_UP + alertUsers.join(", "))
                     );
-                    await reaction.remove(user.id);
+                    await reaction.users.remove(user.id);
                     break;
             }
         });
 
         // If a user removes their "ok" reaction, we need to remove them from the readyUsers list and add them to the unreadyUsers list
         client.on("messageReactionRemove", async(messageReaction, user) => {
-            if (messageReaction.message !== readyCheckLobby) return;
+            // Return if this message is not the readyCheckLobby
+            if (messageReaction.message.id !== readyCheckLobby.id) return;
 
+            // Return if the user isn't in the lobby
             if (!userStateMap.has(`<@!${user.id}>`)) return;
 
-            if (messageReaction.emoji.name === '🆗' || messageReaction.emoji.name === '*️⃣') {
-                userStateMap.set(`<@!${user.id}>`, config.enums.userStates.INACTIVE);
+            switch (messageReaction.emoji.name) {
+                case '🆗':
+                    // If the user was already READY, then they removed their reaction themselves, so set them to INACTIVE
+                    if (userStateMap.get(`<@!${user.id}>`) === config.enums.userStates.READY) {
+                        userStateMap.set(`<@!${user.id}>`, config.enums.userStates.INACTIVE);
+                        readyCheckLobby = await readyCheckLobby.edit(newReadyCheckLobbyEmbed(userStateMap));
+                    }
+                    break;
 
-                readyCheckLobby = await readyCheckLobby.edit(newReadyCheckLobbyEmbed(userStateMap));
+                case '*️⃣':
+                    // If the user was already PREPARING, then they removed their reaction themselves, so set them to INACTIVE
+                    if (userStateMap.get(`<@!${user.id}>`) === config.enums.userStates.PREPARING) {
+                        userStateMap.set(`<@!${user.id}>`, config.enums.userStates.INACTIVE);
+                        readyCheckLobby = await readyCheckLobby.edit(newReadyCheckLobbyEmbed(userStateMap));
+                    }
+                    break;
             }
         });
 
