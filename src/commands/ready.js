@@ -141,6 +141,9 @@ exports.run = async (message, args) => {
 
                 case '▶️':
                     if (userStateMap.get(`<@!${user.id}>`) === config.enums.userStates.READY) {
+                        await message.channel.send(
+                            newCountdownHistoryEmbed(`An emergency override was triggered by <@!${user.id}>!`, config.embeds.images.emergencyOverrideReadyCheckThumbnailUrl, 'DARK_ORANGE')
+                        );
                         await startCountdown(readyCheckLobby, userStateMap, messagesToDelete);
 
                     } else {
