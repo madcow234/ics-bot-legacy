@@ -16,32 +16,10 @@ import log                         from 'winston';
  */
 exports.run = async (message, args) => {
     try {
-        let reactionMenuEmojis = ['🆗', '*️⃣', '🔔', '🔄', '❌', '🛑'];
+        let reactionMenuEmojis = ['🆗', '*️⃣', '🔔', '🔄', '❌', '▶️', '🛑'];
         let client = config.client;
-        let mentionsArray = [];
 
-        // If the --crew argument is used, gather the configured crew users
-        if (args.includes('-c') || args.includes('--crew')) {
-            for (let crewId of config.crew) {
-                mentionsArray.push(await client.users.fetch(crewId));
-            }
-        }
-
-        // Gather any mentions attached to the ready check initiation message
-        for (let user of message.mentions.users.array()) {
-            if (!mentionsArray.includes(user)) {
-                mentionsArray.push(user);
-            }
-        }
-
-        // Gather any roles attached to the ready check initiation message
-        for (let role of message.mentions.roles.array()) {
-            for (let member of role.members.array()) {
-                if (!mentionsArray.includes(member.user)) {
-                    mentionsArray.push(member.user);
-                }
-            }
-        }
+        let mentionsArray = await buildMentionsArray(args, client, message);
 
         // If nobody was mentioned, send an error message to the channel and return
         if (mentionsArray.length === 0) {
@@ -51,26 +29,25 @@ exports.run = async (message, args) => {
             return;
         }
 
-        let initiatingUser = message.author.id;
         let userStateMap = new Map();
         let messagesToDelete = [];
 
         // Add the user that initiated the ready check to the map first
         // This allows the initiating user to not have to mention themselves
-        userStateMap.set(`<@!${initiatingUser}>`, config.enums.userStates.INACTIVE);
+        userStateMap.set(`<@!${message.author.id}>`, config.enums.userStates.INACTIVE);
 
         // Add the rest of the mentioned users to the map
         for (let user of mentionsArray) {
             // Don't add the user that created the ready check twice
-            if (user.id === initiatingUser) continue;
+            if (user.id === message.author.id) continue;
             userStateMap.set(`<@!${user.id}>`, config.enums.userStates.INACTIVE);
         }
 
-        let participants = Array.from(userStateMap.keys()).length > 1 ? Array.from(userStateMap.keys()).slice(1).join(', ') : `<@!${initiatingUser}>`;
+        let participants = Array.from(userStateMap.keys()).length > 1 ? Array.from(userStateMap.keys()).slice(1).join(', ') : `<@!${message.author.id}>`;
 
         // Send a history report stating the ready check lobby is initiated
         await message.channel.send(
-            newCountdownHistoryEmbed(`A ready check lobby was initiated by <@!${initiatingUser}>.\n\nOther participants: ${participants}`, config.embeds.images.initiateReadyCheckThumbnailUrl)
+            newCountdownHistoryEmbed(`A ready check lobby was initiated by <@!${message.author.id}>.\n\nOther participants: ${participants}`, config.embeds.images.initiateReadyCheckThumbnailUrl)
         );
 
         await sleep(100);
@@ -162,6 +139,16 @@ exports.run = async (message, args) => {
 
                     break;
 
+                case '▶️':
+                    if (userStateMap.get(`<@!${user.id}>`) === config.enums.userStates.READY) {
+                        await startCountdown(readyCheckLobby, userStateMap, messagesToDelete);
+
+                    } else {
+                        await reaction.users.remove(user.id)
+                    }
+
+                    break;
+
                 case '🛑':
                     await readyCheckLobby.delete();
                     await message.channel.bulkDelete(messagesToDelete);
@@ -232,4 +219,33 @@ const startCountdown = async (readyCheckLobby, userStateMap, messagesToDelete) =
     await hereWeGoMessage.delete();
 
     await executeCountdown(readyCheckLobby.channel, `The countdown successfully completed for:\n${Array.from(userStateMap.keys()).join(", ")}`);
+};
+
+const buildMentionsArray = async (args, client, message) => {
+    let mentionsArray = [];
+
+    // If the --crew argument is used, gather the configured crew users
+    if (args.includes('-c') || args.includes('--crew')) {
+        for (let crewId of config.crew) {
+            mentionsArray.push(await client.users.fetch(crewId));
+        }
+    }
+
+    // Gather any mentions attached to the ready check initiation message
+    for (let user of message.mentions.users.array()) {
+        if (!mentionsArray.includes(user)) {
+            mentionsArray.push(user);
+        }
+    }
+
+    // Gather any roles attached to the ready check initiation message
+    for (let role of message.mentions.roles.array()) {
+        for (let member of role.members.array()) {
+            if (!mentionsArray.includes(member.user)) {
+                mentionsArray.push(member.user);
+            }
+        }
+    }
+
+    return mentionsArray;
 };
