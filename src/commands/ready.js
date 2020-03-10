@@ -16,7 +16,7 @@ import log                         from 'winston';
  */
 exports.run = async (message, args) => {
     try {
-        let reactionMenuEmojis = ['🆗', '*️⃣', '🔔', '🔄', '❌', '▶️', '🛑'];
+        let reactionMenuEmojis = ['🆗', '*️⃣', '🔔', '🔄', '❌', '▶️', '➕', '🛑'];
         let client = config.client;
 
         let mentionsArray = await buildMentionsArray(args, client, message);
@@ -61,6 +61,44 @@ exports.run = async (message, args) => {
 
             // Return if this bot added the reaction
             if (user.id === client.user.id) return;
+
+            if (reaction.emoji.name === '➕') {
+                let requestingUser = user;
+                let approveMessage = await message.channel.send(`Attention: ${Array.from(userStateMap.keys()).join(", ")}\n\n<@!${requestingUser.id}> has requested to be added to the lobby.`);
+                await approveMessage.react('✔️');
+                await approveMessage.react('✖️');
+
+                const filter = (reaction, user) => (reaction.message.id === approveMessage.id && user.id !== client.user.id);
+                let collector = approveMessage.createReactionCollector(filter);
+
+                collector.on('collect', async r => {
+                    r.users.cache.each(async u => {
+                        // Just return if I placed the reaction
+                        if (u.id === client.user.id) return;
+
+                        // If the reaction is not approve or deny, remove it and return
+                        // If someone not in the lobby tries to react, remove it and return
+                        if (!['✔️', '✖️'].includes(r.emoji.name) || !userStateMap.has(`<@!${u.id}>`)) {
+                            await r.users.remove(u.id);
+                            return;
+                        }
+
+                        if (r.emoji.name === '✔️') {
+                            await approveMessage.delete();
+                            await reaction.users.remove(requestingUser.id);
+                            userStateMap.set(`<@!${requestingUser.id}>`, config.enums.userStates.INACTIVE);
+                            readyCheckLobby = await readyCheckLobby.edit(newReadyCheckLobbyEmbed(userStateMap));
+
+                        } else if (r.emoji.name === '✖️') {
+                            await approveMessage.delete();
+                            await reaction.users.remove(requestingUser.id);
+                            await requestingUser.send(`I'm sorry, <@!${u.id}> has denied your request to join the ready check lobby.`)
+                        }
+                    })
+                });
+
+                return;
+            }
 
             // Remove reaction if the user is not in the readyUsersMap or the reaction is not part of the menu
             if (!userStateMap.has(`<@!${user.id}>`) || !reactionMenuEmojis.includes(reaction.emoji.name)) {
