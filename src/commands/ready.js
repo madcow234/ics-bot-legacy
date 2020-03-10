@@ -30,6 +30,7 @@ exports.run = async (message, args) => {
         }
 
         let userStateMap = new Map();
+        let requestingUsers = new Map();
         let messagesToDelete = [];
 
         // Add the user that initiated the ready check to the map first
@@ -68,8 +69,9 @@ exports.run = async (message, args) => {
                     return;
                 }
 
-                let requestingUser = user;
-                let approveMessage = await message.channel.send(`Attention: ${Array.from(userStateMap.keys()).join(", ")}\n\n<@!${requestingUser.id}> has requested to be added to the lobby.`);
+                let approveMessage = await message.channel.send(`Attention: ${Array.from(userStateMap.keys()).join(", ")}\n\n<@!${user.id}> has requested to be added to the lobby.`);
+                requestingUsers.set(user.id, approveMessage);
+
                 await approveMessage.react('✔️');
                 await approveMessage.react('✖️');
 
@@ -89,15 +91,13 @@ exports.run = async (message, args) => {
                         }
 
                         if (r.emoji.name === '✔️') {
-                            await approveMessage.delete();
-                            await reaction.users.remove(requestingUser.id);
-                            userStateMap.set(`<@!${requestingUser.id}>`, config.enums.userStates.INACTIVE);
+                            await reaction.users.remove(user.id);
+                            userStateMap.set(`<@!${user.id}>`, config.enums.userStates.INACTIVE);
                             readyCheckLobby = await readyCheckLobby.edit(newReadyCheckLobbyEmbed(userStateMap));
 
                         } else if (r.emoji.name === '✖️') {
-                            await approveMessage.delete();
-                            await reaction.users.remove(requestingUser.id);
-                            await requestingUser.send(`I'm sorry, <@!${u.id}> has denied your request to join the ready check lobby.`)
+                            await reaction.users.remove(user.id);
+                            await user.send(`I'm sorry, <@!${u.id}> has denied your request to join the ready check lobby.`);
                         }
                     })
                 });
@@ -222,6 +222,11 @@ exports.run = async (message, args) => {
         client.on("messageReactionRemove", async(messageReaction, user) => {
             // Return if this message is not the readyCheckLobby
             if (messageReaction.message.id !== readyCheckLobby.id) return;
+
+            if (messageReaction.emoji.name === '➕' && requestingUsers.has(user.id)) {
+                await requestingUsers.get(user.id).delete();
+                return;
+            }
 
             // Return if the user isn't in the lobby
             if (!userStateMap.has(`<@!${user.id}>`)) return;
