@@ -63,6 +63,11 @@ exports.run = async (message, args) => {
             if (user.id === client.user.id) return;
 
             if (reaction.emoji.name === '➕') {
+                if (userStateMap.has(`<@!${user.id}>`)) {
+                    await reaction.users.remove(user.id);
+                    return;
+                }
+
                 let requestingUser = user;
                 let approveMessage = await message.channel.send(`Attention: ${Array.from(userStateMap.keys()).join(", ")}\n\n<@!${requestingUser.id}> has requested to be added to the lobby.`);
                 await approveMessage.react('✔️');
