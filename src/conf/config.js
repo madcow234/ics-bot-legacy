@@ -1,4 +1,4 @@
-import { Client } from "discord.js";
+import { Client } from 'discord.js';
 
 /**
  * A global config object for the application.
@@ -24,6 +24,5 @@ exports.config = {
             PREPARING: 'PREPARING',
             READY: 'READY'
         }
-    },
-    crew: ['160457026793766912', '160141834931142657', '351877350004228097']
+    }
 };

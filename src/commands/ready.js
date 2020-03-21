@@ -1,6 +1,6 @@
 import { newErrorEmbed,
-         newCountdownHistoryEmbed,
-         newReadyCheckLobbyEmbed} from '../templates/embed';
+         newReadyCheckLobbyEmbed,
+         newCountdownHistoryEmbed} from '../templates/embed';
 import { executeCountdown }        from '../templates/countdown';
 import { config }                  from '../conf/config';
 import { sleep }                   from '../utils/timer';
@@ -21,14 +21,6 @@ exports.run = async (message, args) => {
 
         let mentionsArray = await buildMentionsArray(args, client, message);
 
-        // If nobody was mentioned, send an error message to the channel and return
-        if (mentionsArray.length === 0) {
-            await message.channel.send(
-                newErrorEmbed(`You can't ready with yourself, <@!${message.author.id}>...mention some friends!`)
-            );
-            return;
-        }
-
         let userStateMap = new Map();
         let requestingUsers = new Map();
         let messagesToDelete = [];
@@ -44,11 +36,17 @@ exports.run = async (message, args) => {
             userStateMap.set(`<@!${user.id}>`, config.enums.userStates.INACTIVE);
         }
 
-        let participants = Array.from(userStateMap.keys()).length > 1 ? Array.from(userStateMap.keys()).slice(1).join(', ') : `<@!${message.author.id}>`;
+        let participants = Array.from(userStateMap.keys()).length > 1 ? Array.from(userStateMap.keys()).slice(1).join(', ') : [];
+
+        let initiateDescription = `A ready check lobby was initiated by <@!${message.author.id}>.`;
+
+        if (participants.length > 0) {
+            initiateDescription += `\n\nOther participants: ${participants}`;
+        }
 
         // Send a history report stating the ready check lobby is initiated
         await message.channel.send(
-            newCountdownHistoryEmbed(`A ready check lobby was initiated by <@!${message.author.id}>.\n\nOther participants: ${participants}`, config.embeds.images.initiateReadyCheckThumbnailUrl)
+            newCountdownHistoryEmbed(initiateDescription, config.embeds.images.initiateReadyCheckThumbnailUrl)
         );
 
         await sleep(100);
@@ -274,13 +272,6 @@ const startCountdown = async (readyCheckLobby, userStateMap, messagesToDelete) =
 
 const buildMentionsArray = async (args, client, message) => {
     let mentionsArray = [];
-
-    // If the --crew argument is used, gather the configured crew users
-    if (args.includes('-c') || args.includes('--crew')) {
-        for (let crewId of config.crew) {
-            mentionsArray.push(await client.users.fetch(crewId));
-        }
-    }
 
     // Gather any mentions attached to the ready check initiation message
     for (let user of message.mentions.users.array()) {
