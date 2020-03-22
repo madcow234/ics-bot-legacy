@@ -34,13 +34,15 @@ exports.run = async () => {
             if (serverInstance) {
                 if (serverInstance.appVersion !== process.env.NPM_PACKAGE_VERSION) {
                     smangleLounge = await smangleLounge.send(newClientUpgradeEmbed());
-                    serverInstance.appVersion = process.env.NPM_PACKAGE_VERSION;
+                    serverInstance.appVersion = '1.0.0';
+                    // serverInstance.appVersion = process.env.NPM_PACKAGE_VERSION;
                     serverInstance.save();
                 }
             } else {
                 serverInstance = await config.db.Server.create({
                     guild: guild.id,
-                    appVersion: process.env.NPM_PACKAGE_VERSION,
+                    appVersion: '1.0.0'
+                    // appVersion: process.env.NPM_PACKAGE_VERSION
                 });
             }
         }
