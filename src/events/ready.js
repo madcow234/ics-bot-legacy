@@ -1,5 +1,5 @@
-// import { newClientReadyEmbed } from '../templates/embed.js';
-import { newCreateSmangleLoungeEmbed } from '../templates/embed';
+import { newClientUpgradeEmbed,
+         newCreateSmangleLoungeEmbed } from '../templates/embed';
 import { config }                      from '../conf/config';
 import log                             from 'winston';
 
@@ -18,28 +18,31 @@ exports.run = async () => {
             let smangleLounge = guild.channels.cache.find(channel => channel.name === 'smangle-lounge');
 
             if (!smangleLounge) {
+                // This inspection is disabled because WebStorm wants the "type" to be "voice" for some reason
+                // noinspection JSCheckFunctionSignatures
                 smangleLounge = await guild.channels.create('smangle-lounge', {
                     type: 'text',
                     reason: 'Everyone needs a place to smangle.'
                 });
-                await smangleLounge.send(newCreateSmangleLoungeEmbed());
+                smangleLounge = await smangleLounge.send(newCreateSmangleLoungeEmbed());
             }
 
-            // THE FOLLOWING CODE IS COMMENTED BECAUSE HEROKU RESTARTS EVERY 24 HOURS
+            let serverInstance = await config.db.models.Server.findOne({
+                where: { guild: guild.id }
+            });
 
-            // This was causing a ready message to be sent to the general channel every day
-            // We would ultimately like this to happen only when the bot gets re-deployed
-            // This would allow for us to put patch notes in the ready message
-            // But this cannot happen unless the bot is hosted somewhere other than Heroku
-
-            // Actions to skip if testing the bot (like sending a message to general chat upon login)
-            // if (process.env.NODE_ENV !== 'production') continue;
-
-            // Find the configured 'general' channel for the server
-            // const generalChannel = guild.channels.cache.find(channel => channel.name === 'general');
-
-            // Let the server know that I am online
-            // generalChannel.send(newClientReadyEmbed());
+            if (serverInstance) {
+                if (serverInstance.appVersion !== process.env.NPM_PACKAGE_VERSION) {
+                    smangleLounge = await smangleLounge.send(newClientUpgradeEmbed());
+                    serverInstance.appVersion = process.env.NPM_PACKAGE_VERSION;
+                    serverInstance.save();
+                }
+            } else {
+                serverInstance = await config.db.Server.create({
+                    guild: guild.id,
+                    appVersion: process.env.NPM_PACKAGE_VERSION,
+                });
+            }
         }
 
     } catch (err) {

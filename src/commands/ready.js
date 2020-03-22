@@ -1,5 +1,4 @@
-import { newErrorEmbed,
-         newReadyCheckLobbyEmbed,
+import { newReadyCheckLobbyEmbed,
          newCountdownHistoryEmbed} from '../templates/embed';
 import { executeCountdown }        from '../templates/countdown';
 import { config }                  from '../conf/config';
@@ -36,12 +35,13 @@ exports.run = async (message, args) => {
             userStateMap.set(`<@!${user.id}>`, config.enums.userStates.INACTIVE);
         }
 
-        let participants = Array.from(userStateMap.keys()).length > 1 ? Array.from(userStateMap.keys()).slice(1).join(', ') : [];
+        // Since we put the initiating user in the userStateMap first, we want to remove them from the otherParticipants list
+        let otherParticipants = userStateMap.size > 1 ? Array.from(userStateMap.keys()).slice(1).join(', ') : [];
 
         let initiateDescription = `A ready check lobby was initiated by <@!${message.author.id}>.`;
 
-        if (participants.length > 0) {
-            initiateDescription += `\n\nOther participants: ${participants}`;
+        if (otherParticipants.length > 0) {
+            initiateDescription += `\n\nOther participants: ${otherParticipants}`;
         }
 
         // Send a history report stating the ready check lobby is initiated
@@ -259,15 +259,17 @@ exports.run = async (message, args) => {
 };
 
 const startCountdown = async (readyCheckLobby, userStateMap, messagesToDelete) => {
+    let users = Array.from(userStateMap.keys()).join(", ");
+
     await readyCheckLobby.delete();
     await readyCheckLobby.channel.bulkDelete(messagesToDelete);
 
-    let hereWeGoMessage = await readyCheckLobby.channel.send(messageConstants.ALERT.HERE_WE_GO + Array.from(userStateMap.keys()).join(", "));
+    let hereWeGoMessage = await readyCheckLobby.channel.send(messageConstants.ALERT.HERE_WE_GO + users);
 
     await sleep(2100);
     await hereWeGoMessage.delete();
 
-    await executeCountdown(readyCheckLobby.channel, `The countdown successfully completed for:\n${Array.from(userStateMap.keys()).join(", ")}`);
+    await executeCountdown(readyCheckLobby.channel, `The countdown successfully completed for:\n${users}`);
 };
 
 const buildMentionsArray = async (args, client, message) => {

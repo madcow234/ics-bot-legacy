@@ -1,10 +1,10 @@
 import { MessageEmbed } from 'discord.js';
 import { config }    from '../conf/config';
 
-exports.newClientReadyEmbed = () => {
+exports.newClientUpgradeEmbed = () => {
     return new MessageEmbed()
         .setTimestamp()
-        .setDescription(`Grab your bangle and get ready to smangle!`)
+        .setDescription(`This shit got updated, yo!`)
         .setColor('GREEN')
 };
 

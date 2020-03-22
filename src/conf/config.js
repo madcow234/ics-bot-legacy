@@ -5,6 +5,7 @@ import { Client } from 'discord.js';
  */
 exports.config = {
     client: new Client(),
+    db: null,
     embeds: {
         images: {
             authorIconUrl: 'https://cdn.discordapp.com/attachments/673213456526082053/682402957219725332/icsbot_static.png',

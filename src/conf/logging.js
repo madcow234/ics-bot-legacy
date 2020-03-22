@@ -1,7 +1,7 @@
 import winston from 'winston';
 import fs      from 'fs';
 
-const formatPattern = winston.format.printf(({ level, message, label, timestamp }) => {
+const formatPattern = winston.format.printf(({ level, message, timestamp }) => {
     return `${timestamp} ${level.toUpperCase().padStart(5)}: ${message}`;
 });
 
