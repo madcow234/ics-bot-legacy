@@ -1,5 +1,6 @@
 import { newClientUpgradeEmbed,
          newCreateSmangleLoungeEmbed } from '../templates/embed';
+import { version as appVersion }       from '../../package';
 import { config }                      from '../conf/config';
 import log                             from 'winston';
 
@@ -32,17 +33,15 @@ exports.run = async () => {
             });
 
             if (serverInstance) {
-                if (serverInstance.appVersion !== process.env.NPM_PACKAGE_VERSION) {
+                if (serverInstance.appVersion !== appVersion) {
                     smangleLounge = await smangleLounge.send(newClientUpgradeEmbed());
-                    serverInstance.appVersion = '1.0.0';
-                    // serverInstance.appVersion = process.env.NPM_PACKAGE_VERSION;
+                    serverInstance.appVersion = appVersion;
                     serverInstance.save();
                 }
             } else {
                 serverInstance = await config.db.Server.create({
                     guild: guild.id,
-                    appVersion: '1.0.0'
-                    // appVersion: process.env.NPM_PACKAGE_VERSION
+                    appVersion: appVersion
                 });
             }
         }
