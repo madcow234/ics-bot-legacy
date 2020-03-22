@@ -29,6 +29,9 @@ exports.loadDatabase = async () => {
                             rejectUnauthorized: false
                         }
                 },
+                pool: {
+                    max: 15
+                },
                 logging: (msg) => log.debug(msg)
             });
             break;
