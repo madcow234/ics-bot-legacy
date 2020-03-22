@@ -26,7 +26,7 @@ exports.loadDatabase = async () => {
                     ssl:
                         {
                             require: true,
-                            rejectUnauthorized: true
+                            rejectUnauthorized: false
                         }
                 },
                 logging: (msg) => log.debug(msg)
