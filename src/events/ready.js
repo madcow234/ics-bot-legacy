@@ -1,8 +1,8 @@
-import { newClientUpgradeEmbed,
-         newCreateSmangleLoungeEmbed } from '../templates/embed';
-import { version as appVersion }       from '../../package';
-import { config }                      from '../conf/config';
-import log                             from 'winston';
+import { newClientUpgradeEmbed } from "../templates/embed";
+import { version as appVersion } from "../../package";
+import { addGuild }              from '../database/GuildService';
+import { config }                from '../conf/config';
+import log                       from 'winston';
 
 /**
  * Sets the bot's activity message after logging in.
@@ -15,36 +15,28 @@ exports.run = async () => {
 
         await config.client.user.setActivity(`${process.env.PREFIX} commands`, {type: "LISTENING"});
 
+        log.info(`Syncing database with client to check for missing guilds...`);
         for (let guild of config.client.guilds.cache.array()) {
-            let smangleLounge = guild.channels.cache.find(channel => channel.name === 'smangle-lounge');
+            let guildInstance = await addGuild(guild);
 
-            if (!smangleLounge) {
-                // This inspection is disabled because WebStorm wants the "type" to be "voice" for some reason
-                // noinspection JSCheckFunctionSignatures
-                smangleLounge = await guild.channels.create('smangle-lounge', {
-                    type: 'text',
-                    reason: 'Everyone needs a place to smangle.'
-                });
-                smangleLounge = await smangleLounge.send(newCreateSmangleLoungeEmbed());
-            }
+            log.debug(`Checking if application version has changed since client was last active on guild '${guild.name}' (${guild.id})`);
+            if (guildInstance.appVersion !== appVersion) {
+                log.info(`Application version has changed for guild '${guild.name}' (${guild.id}) - Old version: ${guildInstance.appVersion}, New version: ${appVersion}'`);
 
-            let serverInstance = await config.db.models.Server.findOne({
-                where: { guild: guild.id }
-            });
+                let smangleLounge = guild.channels.cache.find(channel => channel.name === 'smangle-lounge');
 
-            if (serverInstance) {
-                if (serverInstance.appVersion !== appVersion) {
-                    smangleLounge = await smangleLounge.send(newClientUpgradeEmbed());
-                    serverInstance.appVersion = appVersion;
-                    serverInstance.save();
-                }
+                log.info(`Sending patch notes to channel 'smangle-lounge' in guild '${guild.name}' (${guild.id})`);
+                await smangleLounge.send(newClientUpgradeEmbed(guildInstance.appVersion, appVersion));
+
+                guildInstance.appVersion = appVersion;
+                guildInstance.save();
+                log.info(`Application version has been updated to ${appVersion} for guild '${guild.name}' (${guild.id})`)
+
             } else {
-                serverInstance = await config.db.Server.create({
-                    guild: guild.id,
-                    appVersion: appVersion
-                });
+                log.debug(`Application version has not changed for guild '${guild.name}' (${guild.id})`);
             }
         }
+        log.info(`Successfully added missing guilds`);
 
     } catch (err) {
         log.error(`[/events/ready.js] ${err}`);

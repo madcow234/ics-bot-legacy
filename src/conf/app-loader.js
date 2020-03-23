@@ -19,28 +19,28 @@ exports.initApplication = async () => {
 
         // Initialize the logger to use throughout the application
         await initLogger();
-        log.debug('Successfully initialized the logging framework.');
+        log.info('Successfully initialized the logging framework');
 
         // Loads the database with all of the tables defined in the database directory
-        log.debug('Initializing the database...');
+        log.debug('Attempting to initialize the database...');
         await loadDatabase();
         // Test the connection to the database before initiating the Discord client
         await config.db.authenticate();
-        log.debug('successfully initialized the database.');
+        log.info('Successfully initialized the database');
 
         // Create a Discord client and set it in mainContext
         config.client = await new Discord.Client();
 
         // Loads all of the events in the events directory
         // Note: This method uses the client, so it must be initialized first
-        log.debug('Loading available Discord events...');
+        log.debug('Attempting to load available Discord events...');
         await loadEvents();
-        log.debug('successfully loaded Discord events.');
+        log.info('Successfully loaded available Discord events');
 
         // Tell the bot to wake up
-        log.debug('Connecting the client to Discord...');
+        log.debug('Attempting to connect the client to Discord...');
         await config.client.login(process.env.BOT_TOKEN);
-        log.debug('successfully connected the client to Discord.');
+        log.info('Successfully connected the client to Discord');
 
     } catch (err) {
         // If any error is thrown during initialization, log the error to the console and exit

@@ -1,10 +1,17 @@
 import { MessageEmbed } from 'discord.js';
-import { config }    from '../conf/config';
+import { changelist }   from '../conf/patch-notes';
+import { config }       from '../conf/config';
 
-exports.newClientUpgradeEmbed = () => {
+exports.newClientUpgradeEmbed = (oldAppVersion, newAppVersion) => {
+
     return new MessageEmbed()
+        .setTitle(`Yay! You've received an update!`)
         .setTimestamp()
-        .setDescription(`This shit got updated, yo!`)
+        .addField(`**Previous Version**`, oldAppVersion)
+        .addField(`**Current Version**`, newAppVersion)
+        .addField(`**New Features**`, changelist[newAppVersion].newFeatures)
+        .addField(`**Bug Fixes**`, changelist[newAppVersion].bugFixes)
+        .addField(`**Known Issues**`, changelist[newAppVersion].knownIssues)
         .setColor('GREEN')
 };
 

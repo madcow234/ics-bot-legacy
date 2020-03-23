@@ -3,10 +3,10 @@ import { config }                from '../../conf/config';
 
 let sequelize = config.db;
 
-class Server extends Model {}
+class Guild extends Model {}
 
-Server.init({
-    guild: {
+Guild.init({
+    guildId: {
         type: BIGINT,
         unique: true,
         allowNull: false
@@ -17,7 +17,7 @@ Server.init({
     }
 }, {
     sequelize,
-    modelName: 'Server'
+    modelName: 'Guild'
 });
 
-module.exports = Server;
+module.exports = Guild;
