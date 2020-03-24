@@ -1,6 +1,6 @@
 {
   "name": "ics-bot",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Discord bot to facilitate synchronized countdowns.",
   "author": "MadCow234",
   "license": "MIT",

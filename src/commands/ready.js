@@ -1,5 +1,6 @@
 import { newReadyCheckLobbyEmbed,
          newCountdownHistoryEmbed} from '../templates/embed';
+import { buildMentionsArray }      from '../utils/mentionsService';
 import { executeCountdown }        from '../templates/countdown';
 import { config }                  from '../conf/config';
 import { sleep }                   from '../utils/timer';
@@ -10,15 +11,14 @@ import log                         from 'winston';
  * Creates a ready check lobby, complete with reaction-based menu system, and executes a countdown when everyone is ready.
  *
  * @param message the message requesting the ready check
- * @param args a list of any arguments passed with the command
  * @returns {Promise<void>} an empty Promise
  */
-exports.run = async (message, args) => {
+exports.run = async (message) => {
     try {
         let reactionMenuEmojis = ['🆗', '*️⃣', '🔔', '🔄', '❌', '▶️', '➕', '🛑'];
         let client = config.client;
 
-        let mentionsArray = await buildMentionsArray(args, client, message);
+        let mentionsArray = await buildMentionsArray(message.mentions);
 
         let userStateMap = new Map();
         let requestingUsers = new Map();
@@ -270,26 +270,4 @@ const startCountdown = async (readyCheckLobby, userStateMap, messagesToDelete) =
     await hereWeGoMessage.delete();
 
     await executeCountdown(readyCheckLobby.channel, `The countdown successfully completed for:\n${users}`);
-};
-
-const buildMentionsArray = async (args, client, message) => {
-    let mentionsArray = [];
-
-    // Gather any mentions attached to the ready check initiation message
-    for (let user of message.mentions.users.array()) {
-        if (!mentionsArray.includes(user)) {
-            mentionsArray.push(user);
-        }
-    }
-
-    // Gather any roles attached to the ready check initiation message
-    for (let role of message.mentions.roles.array()) {
-        for (let member of role.members.array()) {
-            if (!mentionsArray.includes(member.user)) {
-                mentionsArray.push(member.user);
-            }
-        }
-    }
-
-    return mentionsArray;
 };

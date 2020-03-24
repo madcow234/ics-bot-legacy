@@ -1,5 +1,5 @@
-import { newClientUpgradeEmbed } from "../templates/embed";
-import { version as appVersion } from "../../package";
+import { newClientUpgradeEmbed } from '../templates/embed';
+import { version as appVersion } from '../../package';
 import { addGuild }              from '../database/GuildService';
 import { config }                from '../conf/config';
 import log                       from 'winston';
@@ -21,7 +21,7 @@ exports.run = async () => {
 
             log.debug(`Checking if application version has changed since client was last active on guild '${guild.name}' (${guild.id})`);
             if (guildInstance.appVersion !== appVersion) {
-                log.info(`Application version has changed for guild '${guild.name}' (${guild.id}) - Old version: ${guildInstance.appVersion}, New version: ${appVersion}'`);
+                log.info(`Application version has changed for guild '${guild.name}' (${guild.id}) - Old version: ${guildInstance.appVersion}, New version: ${appVersion}`);
 
                 let smangleLounge = guild.channels.cache.find(channel => channel.name === 'smangle-lounge');
 
